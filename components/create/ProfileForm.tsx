@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { useStory } from "@/context/StoryContext";
 import { fileToDataUrl } from "@/lib/utils";
-import { Upload, Camera, User, X } from "lucide-react";
+import { Camera, User, X, Loader2, Sparkles } from "lucide-react";
 
 interface ProfileFormProps {
   onComplete: () => void;
@@ -17,30 +17,62 @@ export function ProfileForm({ onComplete }: ProfileFormProps) {
   const { setChildProfile } = useStory();
   const [name, setName] = useState("");
   const [image, setImage] = useState<string | null>(null);
-  const [gender, setGender] = useState<"boy" | "girl" | "neutral">("neutral");
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [gender, setGender] = useState<"boy" | "girl" | "neutral">("boy");
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageUpload = useCallback(async (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      setError("Please upload an image file");
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Image must be less than 5MB");
-      return;
-    }
+  // Upload photo to storage
+  const uploadPhoto = useCallback(async (dataUrl: string) => {
+    setIsUploading(true);
+    setError("");
 
     try {
-      const dataUrl = await fileToDataUrl(file);
-      setImage(dataUrl);
-      setError("");
-    } catch {
-      setError("Failed to load image");
+      const uploadResponse = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ base64: dataUrl }),
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("Failed to upload photo");
+      }
+
+      const uploadData = await uploadResponse.json();
+      setPhotoUrl(uploadData.url);
+      setIsUploading(false);
+    } catch (err) {
+      setIsUploading(false);
+      setError(err instanceof Error ? err.message : "Failed to upload photo");
     }
   }, []);
+
+  const handleImageUpload = useCallback(
+    async (file: File) => {
+      if (!file.type.startsWith("image/")) {
+        setError("Please upload an image file");
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        setError("Image must be less than 5MB");
+        return;
+      }
+
+      try {
+        const dataUrl = await fileToDataUrl(file);
+        setImage(dataUrl);
+        setError("");
+        // Upload to storage
+        uploadPhoto(dataUrl);
+      } catch {
+        setError("Failed to load image");
+      }
+    },
+    [uploadPhoto]
+  );
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -77,9 +109,20 @@ export function ProfileForm({ onComplete }: ProfileFormProps) {
       return;
     }
 
+    if (!photoUrl) {
+      setError("Please upload your child's photo for personalization");
+      return;
+    }
+
+    if (isUploading) {
+      setError("Please wait for photo upload to complete");
+      return;
+    }
+
+    // Set the child profile with the uploaded photo URL
     setChildProfile({
       name: name.trim(),
-      image,
+      image: photoUrl, // Use the uploaded URL for face swap
       gender,
       age: 5,
     });
@@ -89,6 +132,7 @@ export function ProfileForm({ onComplete }: ProfileFormProps) {
 
   const removeImage = () => {
     setImage(null);
+    setPhotoUrl(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -98,10 +142,10 @@ export function ProfileForm({ onComplete }: ProfileFormProps) {
     <Card className="max-w-lg mx-auto">
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
-          Tell Us About Your Star
+          Create Your Personalized Story
         </h2>
         <p className="text-gray-600">
-          Enter your child&apos;s name and upload a photo to personalize their adventure
+          Upload your child&apos;s photo and we&apos;ll create a magical adventure with them as the star!
         </p>
       </div>
 
@@ -109,29 +153,53 @@ export function ProfileForm({ onComplete }: ProfileFormProps) {
         {/* Image Upload */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Child&apos;s Photo (Optional)
+            Child&apos;s Photo <span className="text-red-500">*</span>
           </label>
 
           {image ? (
-            <div className="relative w-40 h-40 mx-auto">
-              <Image
-                src={image}
-                alt="Child's photo"
-                fill
-                className="object-cover rounded-full border-4 border-purple-200"
-              />
-              <button
-                type="button"
-                onClick={removeImage}
-                className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
+            <div className="space-y-4">
+              <div className="relative w-40 h-40 mx-auto">
+                <Image
+                  src={image}
+                  alt="Child's photo"
+                  fill
+                  className="object-cover rounded-full border-4 border-purple-200"
+                />
+                {isUploading && (
+                  <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 text-white animate-spin" />
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  disabled={isUploading}
+                  className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors disabled:opacity-50"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Upload Status */}
+              {isUploading && (
+                <p className="text-center text-sm text-purple-600">
+                  <Loader2 className="w-4 h-4 inline mr-2 animate-spin" />
+                  Uploading photo...
+                </p>
+              )}
+              {photoUrl && !isUploading && (
+                <p className="text-center text-sm text-green-600">
+                  <Sparkles className="w-4 h-4 inline mr-2" />
+                  Photo ready for personalization!
+                </p>
+              )}
             </div>
           ) : (
             <div
-              className={`upload-zone rounded-2xl p-8 text-center cursor-pointer ${
-                isDragging ? "drag-over" : ""
+              className={`upload-zone rounded-2xl p-8 text-center cursor-pointer border-2 border-dashed transition-all ${
+                isDragging
+                  ? "border-purple-500 bg-purple-50"
+                  : "border-gray-300 hover:border-purple-400"
               }`}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
@@ -145,6 +213,9 @@ export function ProfileForm({ onComplete }: ProfileFormProps) {
                 Drag & drop a photo here, or click to browse
               </p>
               <p className="text-gray-400 text-sm">PNG, JPG up to 5MB</p>
+              <p className="text-purple-600 text-xs mt-2">
+                Your child&apos;s face will appear in every illustration!
+              </p>
             </div>
           )}
 
@@ -169,13 +240,13 @@ export function ProfileForm({ onComplete }: ProfileFormProps) {
         {/* Gender Selection */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Character Pronouns
+            Character Style
           </label>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { value: "boy", label: "He/Him", icon: "👦" },
-              { value: "girl", label: "She/Her", icon: "👧" },
-              { value: "neutral", label: "They/Them", icon: "🧒" },
+              { value: "boy", label: "Boy", icon: "👦", outfit: "White Thobe" },
+              { value: "girl", label: "Girl", icon: "👧", outfit: "Elegant Abaya" },
+              { value: "neutral", label: "Neutral", icon: "🧒", outfit: "Simple Outfit" },
             ].map((option) => (
               <button
                 key={option.value}
@@ -188,7 +259,8 @@ export function ProfileForm({ onComplete }: ProfileFormProps) {
                 }`}
               >
                 <span className="text-2xl mb-1 block">{option.icon}</span>
-                <span className="text-sm text-gray-700">{option.label}</span>
+                <span className="text-sm text-gray-700 font-medium">{option.label}</span>
+                <span className="text-xs text-gray-500 block">{option.outfit}</span>
               </button>
             ))}
           </div>
@@ -198,10 +270,30 @@ export function ProfileForm({ onComplete }: ProfileFormProps) {
           <p className="text-red-500 text-sm text-center">{error}</p>
         )}
 
-        <Button type="submit" className="w-full" size="lg">
-          <User className="w-5 h-5 mr-2" />
-          Continue to Choose Theme
+        <Button
+          type="submit"
+          className="w-full"
+          size="lg"
+          disabled={isUploading || !photoUrl}
+        >
+          {isUploading ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              Uploading...
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-5 h-5 mr-2" />
+              Create My Story
+            </>
+          )}
         </Button>
+
+        <p className="text-center text-xs text-gray-500">
+          Your photo will be used to personalize the story illustrations.
+          <br />
+          Generation takes about 1-2 minutes for all 22 pages.
+        </p>
       </form>
     </Card>
   );

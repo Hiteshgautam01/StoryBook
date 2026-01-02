@@ -111,6 +111,7 @@ export function Book() {
                     fill
                     className="object-contain"
                     priority={page.id <= 2}
+                    unoptimized={page.illustration.startsWith("http")}
                   />
                 </div>
               </div>
