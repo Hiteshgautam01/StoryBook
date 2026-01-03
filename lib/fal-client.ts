@@ -229,49 +229,111 @@ async function ensurePublicUrl(imageUrl: string): Promise<string> {
 }
 
 /**
+ * Face swap using Nano Banana Pro (Google Gemini 2.5 Flash Image)
+ * Higher quality results with better blending and art style preservation
+ */
+async function swapFaceWithNanoBanana(
+  baseImageUrl: string,
+  faceImageUrl: string
+): Promise<FaceSwapResult> {
+  console.log(`[Fal AI] Using Nano Banana Pro for face swap...`);
+
+  const publicBaseUrl = await ensurePublicUrl(baseImageUrl);
+  const publicFaceUrl = await ensurePublicUrl(faceImageUrl);
+
+  const result = await fal.subscribe("fal-ai/nano-banana-pro/edit", {
+    input: {
+      prompt: "Replace the child's face in the first image with the face from the second image. Preserve the original illustrated art style, colors, lighting, expression, pose, and background exactly. Make the face swap look natural and seamless, matching the skin tone and lighting conditions of the illustration. The child should look like they were always part of this illustration.",
+      image_urls: [publicBaseUrl, publicFaceUrl],
+      num_images: 1,
+      aspect_ratio: "auto",
+      output_format: "png",
+    },
+    logs: true,
+    onQueueUpdate: (update) => {
+      if (update.status === "IN_PROGRESS") {
+        console.log(`[Fal AI] Nano Banana Pro processing...`);
+      }
+    },
+  });
+
+  const data = result.data as {
+    images: Array<{ url: string; width: number; height: number; content_type: string }>;
+  };
+
+  console.log(`[Fal AI] Nano Banana Pro completed successfully`);
+
+  return {
+    imageUrl: data.images[0].url,
+  };
+}
+
+/**
+ * Face swap using basic fal-ai/face-swap model (fallback)
+ */
+async function swapFaceBasic(
+  baseImageUrl: string,
+  faceImageUrl: string
+): Promise<FaceSwapResult> {
+  console.log(`[Fal AI] Using basic face-swap model...`);
+
+  const publicBaseUrl = await ensurePublicUrl(baseImageUrl);
+  const publicFaceUrl = await ensurePublicUrl(faceImageUrl);
+
+  const result = await fal.subscribe("fal-ai/face-swap", {
+    input: {
+      base_image_url: publicBaseUrl,
+      swap_image_url: publicFaceUrl,
+    },
+    logs: true,
+    onQueueUpdate: (update) => {
+      if (update.status === "IN_PROGRESS") {
+        console.log(`[Fal AI] Basic face swap in progress...`);
+      }
+    },
+  });
+
+  const data = result.data as {
+    image: { url: string; width: number; height: number; content_type: string };
+  };
+
+  console.log(`[Fal AI] Basic face swap completed`);
+
+  return {
+    imageUrl: data.image.url,
+  };
+}
+
+/**
  * Swap the face in an existing image with a new face
  *
- * Uses Fal AI's face-swap model to replace the child's face
- * in existing story illustrations with the uploaded child's photo.
+ * Uses Nano Banana Pro (Google Gemini 2.5 Flash) for high-quality face swapping.
+ * Falls back to basic face-swap model if Nano Banana fails.
  *
  * @param baseImageUrl - The existing story illustration (from /pagesimages/)
  * @param faceImageUrl - The uploaded child's photo to use as the new face
+ * @param useNanoBanana - Whether to use Nano Banana Pro (default: true)
  */
 export async function swapFace(
   baseImageUrl: string,
-  faceImageUrl: string
+  faceImageUrl: string,
+  useNanoBanana: boolean = true
 ): Promise<FaceSwapResult> {
   try {
     console.log(`[Fal AI] Starting face swap...`);
     console.log(`[Fal AI] Base image: ${baseImageUrl.substring(0, 50)}...`);
     console.log(`[Fal AI] Face image: ${faceImageUrl.substring(0, 50)}...`);
 
-    // Upload local images to Fal storage if needed
-    const publicBaseUrl = await ensurePublicUrl(baseImageUrl);
-    const publicFaceUrl = await ensurePublicUrl(faceImageUrl);
+    if (useNanoBanana) {
+      try {
+        return await swapFaceWithNanoBanana(baseImageUrl, faceImageUrl);
+      } catch (nanoBananaError) {
+        console.warn(`[Fal AI] Nano Banana Pro failed, falling back to basic face-swap:`, nanoBananaError);
+        return await swapFaceBasic(baseImageUrl, faceImageUrl);
+      }
+    }
 
-    const result = await fal.subscribe("fal-ai/face-swap", {
-      input: {
-        base_image_url: publicBaseUrl,
-        swap_image_url: publicFaceUrl,
-      },
-      logs: true,
-      onQueueUpdate: (update) => {
-        if (update.status === "IN_PROGRESS") {
-          console.log(`[Fal AI] Face swap in progress...`);
-        }
-      },
-    });
-
-    const data = result.data as {
-      image: { url: string; width: number; height: number; content_type: string };
-    };
-
-    console.log(`[Fal AI] Face swap completed successfully`);
-
-    return {
-      imageUrl: data.image.url,
-    };
+    return await swapFaceBasic(baseImageUrl, faceImageUrl);
   } catch (error) {
     console.error("[Fal AI] Face swap error:", error);
     throw new Error(`Face swap failed: ${error instanceof Error ? error.message : "Unknown error"}`);
