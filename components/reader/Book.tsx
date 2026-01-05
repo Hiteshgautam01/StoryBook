@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useRef, useCallback, useEffect } from "react";
+import React, { useRef, useCallback, useEffect, useState } from "react";
 import HTMLFlipBook from "react-pageflip";
 import Image from "next/image";
 import { useStory } from "@/context/StoryContext";
 import { LastPage } from "./LastPage";
 import { NavigationArrows } from "./NavigationArrows";
+import { exportStoryToPDF } from "@/lib/utils";
 
 interface FlipBookRef {
   pageFlip: () => {
@@ -19,6 +20,29 @@ interface FlipBookRef {
 export function Book() {
   const { currentStory, currentPage, setCurrentPage } = useStory();
   const bookRef = useRef<FlipBookRef>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState<{ current: number; total: number } | null>(null);
+
+  const handleDownloadPDF = useCallback(async () => {
+    if (!currentStory) return;
+
+    setIsExporting(true);
+    setExportProgress({ current: 0, total: currentStory.pages.length });
+
+    try {
+      await exportStoryToPDF(
+        currentStory.pages,
+        currentStory.title,
+        (current, total) => setExportProgress({ current, total })
+      );
+    } catch (error) {
+      console.error("PDF export failed:", error);
+      alert("Failed to export PDF. Please try again.");
+    } finally {
+      setIsExporting(false);
+      setExportProgress(null);
+    }
+  }, [currentStory]);
 
   const handleFlipNext = useCallback(() => {
     if (bookRef.current) {
@@ -62,9 +86,33 @@ export function Book() {
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen p-4">
-      {/* Page indicator */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm z-20">
-        Page {Math.floor(currentPage / 2) + 1} of {Math.ceil(totalPages / 2)}
+      {/* Page indicator and download button */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-3 z-20">
+        <div className="bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm">
+          Page {Math.floor(currentPage / 2) + 1} of {Math.ceil(totalPages / 2)}
+        </div>
+        <button
+          onClick={handleDownloadPDF}
+          disabled={isExporting}
+          className="bg-amber-600 hover:bg-amber-700 disabled:bg-amber-800 disabled:cursor-not-allowed backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm flex items-center gap-2 transition-colors"
+        >
+          {isExporting ? (
+            <>
+              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              {exportProgress ? `${exportProgress.current}/${exportProgress.total}` : "Exporting..."}
+            </>
+          ) : (
+            <>
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Download PDF
+            </>
+          )}
+        </button>
       </div>
 
       {/* Book container */}

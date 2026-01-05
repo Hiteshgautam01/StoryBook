@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { TOTAL_PAGES } from "@/lib/prompts/story-pages";
+import { FALCON_STORY } from "@/lib/prompts/falcon-story";
 
 export interface GeneratedPage {
   pageNumber: number;
@@ -10,7 +11,10 @@ export interface GeneratedPage {
   success: boolean;
 }
 
-export type GenerationStatus = "idle" | "generating" | "complete" | "error";
+export type GenerationStatus = "idle" | "analyzing" | "generating" | "complete" | "error";
+
+// V1 = face swap on pre-made images, V2 = full generation with flux-pulid
+export type GenerationApproach = "face-swap" | "flux-pulid";
 
 export interface StoryGenerationState {
   status: GenerationStatus;
@@ -18,28 +22,34 @@ export interface StoryGenerationState {
   totalPages: number;
   pages: Map<number, GeneratedPage>;
   error: string | null;
+  childDescription?: string; // From photo analysis
 }
 
 export interface UseStoryGenerationOptions {
+  approach?: GenerationApproach; // Default: "flux-pulid"
   onPageComplete?: (page: GeneratedPage) => void;
   onComplete?: (pages: GeneratedPage[]) => void;
   onError?: (error: string, pageNumber?: number) => void;
+  onAnalysisComplete?: (description: string) => void;
 }
 
 export function useStoryGeneration(options: UseStoryGenerationOptions = {}) {
-  const { onPageComplete, onComplete, onError } = options;
+  const { approach = "flux-pulid", onPageComplete, onComplete, onError, onAnalysisComplete } = options;
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Use different total pages based on approach
+  const totalPagesForApproach = approach === "flux-pulid" ? FALCON_STORY.totalPages : TOTAL_PAGES;
 
   const [state, setState] = useState<StoryGenerationState>({
     status: "idle",
     currentPage: 0,
-    totalPages: TOTAL_PAGES,
+    totalPages: totalPagesForApproach,
     pages: new Map(),
     error: null,
   });
 
   const startGeneration = useCallback(
-    async (childName: string, childPhotoUrl: string) => {
+    async (childName: string, childPhotoUrl: string, gender?: "boy" | "girl" | "neutral") => {
       // Cancel any existing generation
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -47,19 +57,28 @@ export function useStoryGeneration(options: UseStoryGenerationOptions = {}) {
 
       abortControllerRef.current = new AbortController();
 
+      // Choose API endpoint based on approach
+      const apiEndpoint = approach === "flux-pulid"
+        ? "/api/generate-story-v2"
+        : "/api/generate-story";
+
+      const currentTotalPages = approach === "flux-pulid" ? FALCON_STORY.totalPages : TOTAL_PAGES;
+
       setState({
-        status: "generating",
-        currentPage: 1,
-        totalPages: TOTAL_PAGES,
+        status: approach === "flux-pulid" ? "analyzing" : "generating",
+        currentPage: 0,
+        totalPages: currentTotalPages,
         pages: new Map(),
         error: null,
       });
 
+      console.log(`[useStoryGeneration] Using ${approach} approach with ${apiEndpoint}`);
+
       try {
-        const response = await fetch("/api/generate-story", {
+        const response = await fetch(apiEndpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ childName, childPhotoUrl }),
+          body: JSON.stringify({ childName, childPhotoUrl, gender }),
           signal: abortControllerRef.current.signal,
         });
 
@@ -92,9 +111,20 @@ export function useStoryGeneration(options: UseStoryGenerationOptions = {}) {
                 const data = JSON.parse(line.slice(6));
 
                 switch (data.type) {
+                  case "analysis_complete":
+                    // V2: Photo analysis complete, starting generation
+                    setState((prev) => ({
+                      ...prev,
+                      status: "generating",
+                      childDescription: data.childDescription,
+                    }));
+                    onAnalysisComplete?.(data.childDescription);
+                    break;
+
                   case "progress":
                     setState((prev) => ({
                       ...prev,
+                      status: "generating",
                       currentPage: data.page,
                     }));
                     break;
@@ -190,7 +220,7 @@ export function useStoryGeneration(options: UseStoryGenerationOptions = {}) {
         onError?.(errorMessage);
       }
     },
-    [onPageComplete, onComplete, onError]
+    [approach, onPageComplete, onComplete, onError, onAnalysisComplete]
   );
 
   const cancelGeneration = useCallback(() => {

@@ -89,13 +89,15 @@ export function GenerationProgress({
         )}
       </div>
 
-      {/* Animated dots for generating state */}
-      {status === "generating" && (
+      {/* Animated dots for generating/analyzing state */}
+      {(status === "generating" || status === "analyzing") && (
         <div className="flex justify-center mt-4 space-x-2">
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"
+              className={`w-2 h-2 rounded-full animate-bounce ${
+                status === "analyzing" ? "bg-blue-500" : "bg-purple-500"
+              }`}
               style={{ animationDelay: `${i * 0.15}s` }}
             />
           ))}

@@ -3,11 +3,14 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStory } from "@/context/StoryContext";
-import { useStoryGeneration, GeneratedPage } from "@/lib/hooks/useStoryGeneration";
+import { useStoryGeneration, GeneratedPage, GenerationApproach } from "@/lib/hooks/useStoryGeneration";
 import { GenerationProgress } from "@/components/generate/GenerationProgress";
 import { Button } from "@/components/ui/Button";
 import Image from "next/image";
-import { TOTAL_PAGES } from "@/lib/prompts/story-pages";
+import { FALCON_STORY } from "@/lib/prompts/falcon-story";
+
+// Use flux-pulid for best quality (generates images with face naturally integrated)
+const GENERATION_APPROACH: GenerationApproach = "flux-pulid";
 
 export default function GeneratePage() {
   const router = useRouter();
@@ -46,6 +49,10 @@ export default function GeneratePage() {
     []
   );
 
+  const handleAnalysisComplete = useCallback((description: string) => {
+    console.log("Child appearance analyzed:", description);
+  }, []);
+
   const {
     status,
     currentPage,
@@ -57,10 +64,13 @@ export default function GeneratePage() {
     startGeneration,
     cancelGeneration,
     reset,
+    childDescription,
   } = useStoryGeneration({
+    approach: GENERATION_APPROACH,
     onPageComplete: handlePageComplete,
     onComplete: handleComplete,
     onError: handleError,
+    onAnalysisComplete: handleAnalysisComplete,
   });
 
   // Redirect if no profile
@@ -74,7 +84,8 @@ export default function GeneratePage() {
   useEffect(() => {
     if (childProfile?.image && !hasStarted && status === "idle") {
       setHasStarted(true);
-      startGeneration(childProfile.name, childProfile.image);
+      // Pass gender for better face analysis and face swap quality
+      startGeneration(childProfile.name, childProfile.image, childProfile.gender);
     }
   }, [childProfile, hasStarted, status, startGeneration]);
 
@@ -123,18 +134,32 @@ export default function GeneratePage() {
 
           {/* Progress text */}
           <div className="text-center mt-4 text-white/60">
-            {status === "generating" && (
+            {status === "analyzing" && (
               <p>
-                Personalizing page {currentPage} of {totalPages}...
+                Analyzing {childProfile.name}&apos;s photo...
                 <br />
                 <span className="text-sm">
-                  Face swap in progress - this keeps your beautiful illustrations!
+                  Extracting appearance characteristics for natural face integration
                 </span>
+              </p>
+            )}
+            {status === "generating" && (
+              <p>
+                Generating page {pagesArray.length + 1} of {totalPages}...
+                <br />
+                <span className="text-sm">
+                  Creating illustrations with {childProfile.name}&apos;s face naturally integrated
+                </span>
+                {childDescription && (
+                  <span className="block text-xs mt-1 text-purple-300/70 max-w-md mx-auto">
+                    Detected: {childDescription.substring(0, 80)}...
+                  </span>
+                )}
               </p>
             )}
             {status === "complete" && (
               <p className="text-green-400">
-                All {completedCount} pages personalized successfully!
+                All {completedCount} pages generated successfully!
               </p>
             )}
             {status === "error" && (
@@ -156,9 +181,9 @@ export default function GeneratePage() {
             )}
           </h2>
 
-          {/* Custom Page Grid for face-swap pages */}
+          {/* Custom Page Grid */}
           <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2">
-            {Array.from({ length: TOTAL_PAGES }, (_, i) => i + 1).map((pageNum) => {
+            {Array.from({ length: totalPages }, (_, i) => i).map((pageNum) => {
               const page = pagesArray.find((p) => p.pageNumber === pageNum);
               const isGenerating = status === "generating" && !page;
               const isComplete = page?.success;
