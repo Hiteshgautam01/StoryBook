@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/Button";
 import Image from "next/image";
 import { FALCON_STORY } from "@/lib/prompts/falcon-story";
 
-// Use flux-pulid for best quality (generates images with face naturally integrated)
-const GENERATION_APPROACH: GenerationApproach = "flux-pulid";
+// Use face-swap to preserve beautiful pre-made illustrations with embedded Arabic text
+const GENERATION_APPROACH: GenerationApproach = "face-swap";
 
 export default function GeneratePage() {
   const router = useRouter();
@@ -139,27 +139,22 @@ export default function GeneratePage() {
                 Analyzing {childProfile.name}&apos;s photo...
                 <br />
                 <span className="text-sm">
-                  Extracting appearance characteristics for natural face integration
+                  Extracting appearance for seamless face blending
                 </span>
               </p>
             )}
             {status === "generating" && (
               <p>
-                Generating page {pagesArray.length + 1} of {totalPages}...
+                Personalizing page {pagesArray.length + 1} of {totalPages}...
                 <br />
                 <span className="text-sm">
-                  Creating illustrations with {childProfile.name}&apos;s face naturally integrated
+                  Blending {childProfile.name}&apos;s face into the illustrations
                 </span>
-                {childDescription && (
-                  <span className="block text-xs mt-1 text-purple-300/70 max-w-md mx-auto">
-                    Detected: {childDescription.substring(0, 80)}...
-                  </span>
-                )}
               </p>
             )}
             {status === "complete" && (
               <p className="text-green-400">
-                All {completedCount} pages generated successfully!
+                All {completedCount} pages personalized successfully!
               </p>
             )}
             {status === "error" && (
@@ -183,7 +178,7 @@ export default function GeneratePage() {
 
           {/* Custom Page Grid */}
           <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2">
-            {Array.from({ length: totalPages }, (_, i) => i).map((pageNum) => {
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
               const page = pagesArray.find((p) => p.pageNumber === pageNum);
               const isGenerating = status === "generating" && !page;
               const isComplete = page?.success;

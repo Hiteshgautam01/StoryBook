@@ -328,38 +328,20 @@ async function ensurePublicUrl(imageUrl: string): Promise<string> {
 }
 
 /**
- * Build an optimized face swap prompt based on child's appearance
+ * Build an optimized face swap prompt for children's book illustrations
  */
-function buildFaceSwapPrompt(appearance?: ChildAppearance): string {
-  // Base instructions for high-quality face swap
-  const basePrompt = `Replace the child's face in the first image (illustration) with the face from the second image (photo).
+function buildFaceSwapPrompt(): string {
+  return `You are editing a professional children's book illustration. Replace ONLY the child's face with the face from the reference photo.
+
 CRITICAL REQUIREMENTS:
-1. PRESERVE the original illustrated art style, colors, brush strokes, and artistic rendering
-2. MATCH the lighting direction and intensity from the illustration
-3. BLEND the face naturally into the illustration's style (not photo-realistic)
-4. KEEP the original pose, expression direction, and body position
-5. MAINTAIN proper face proportions for the illustration's perspective`;
+1. STYLE: Convert the photo face into ILLUSTRATED/PAINTED style matching the book's gouache/watercolor aesthetic
+2. DO NOT make the face look like a photo - it must look HAND-PAINTED like the rest of the image
+3. PRESERVE everything else: the Arabic text, background, clothing, hair, body, lighting, colors
+4. BLEND the face seamlessly - same brush stroke texture, same color warmth
+5. Keep the same HEAD POSITION and ANGLE as the original illustration
+6. Match the SKIN TONE from the photo but render it in the illustrated style
 
-  // Add appearance-specific guidance if available
-  if (appearance?.fullDescription) {
-    return `${basePrompt}
-
-CHILD APPEARANCE (from photo):
-${appearance.fullDescription}
-
-Ensure the swapped face accurately reflects these characteristics while adapting to the illustrated art style. The skin tone should be ${appearance.skinTone || "matched from the photo"}, hair should be ${appearance.hairColor || "as in photo"} ${appearance.hairStyle || ""}, and the face should maintain a ${appearance.faceShape || "natural"} shape appropriate for a ${appearance.age || 5}-year-old ${appearance.gender || "child"}.`;
-  }
-
-  // Simplified prompt if no detailed appearance
-  if (appearance?.skinTone || appearance?.hairColor) {
-    return `${basePrompt}
-
-Match the child's ${appearance.skinTone ? `${appearance.skinTone} skin tone` : "skin tone"}, ${appearance.hairColor ? `${appearance.hairColor} hair` : "hair color"}, and facial features from the photo. The result should look like the child naturally belongs in this illustrated scene.`;
-  }
-
-  return `${basePrompt}
-
-The result should look like the child from the photo naturally belongs in this illustrated scene, with proper skin tone matching and natural blending.`;
+OUTPUT: A seamless children's book illustration where the child's face is naturally integrated in the painted style.`;
 }
 
 /**
@@ -368,17 +350,13 @@ The result should look like the child from the photo naturally belongs in this i
  */
 async function swapFaceWithNanoBanana(
   baseImageUrl: string,
-  faceImageUrl: string,
-  appearance?: ChildAppearance
+  faceImageUrl: string
 ): Promise<FaceSwapResult> {
   console.log(`[Fal AI] Using Nano Banana Pro for face swap...`);
-  if (appearance?.fullDescription) {
-    console.log(`[Fal AI] Using child appearance: ${appearance.fullDescription.substring(0, 80)}...`);
-  }
 
   const publicBaseUrl = await ensurePublicUrl(baseImageUrl);
   const publicFaceUrl = await ensurePublicUrl(faceImageUrl);
-  const prompt = buildFaceSwapPrompt(appearance);
+  const prompt = buildFaceSwapPrompt();
 
   const result = await fal.subscribe("fal-ai/nano-banana-pro/edit", {
     input: {
@@ -451,36 +429,22 @@ async function swapFaceBasic(
  *
  * @param baseImageUrl - The existing story illustration (from /pagesimages/)
  * @param faceImageUrl - The uploaded child's photo to use as the new face
- * @param options - Optional configuration including child appearance and model preference
  */
 export async function swapFace(
   baseImageUrl: string,
-  faceImageUrl: string,
-  options?: {
-    appearance?: ChildAppearance;
-    useNanoBanana?: boolean;
-  }
+  faceImageUrl: string
 ): Promise<FaceSwapResult> {
-  const { appearance, useNanoBanana = true } = options || {};
-
   try {
     console.log(`[Fal AI] Starting face swap...`);
     console.log(`[Fal AI] Base image: ${baseImageUrl.substring(0, 50)}...`);
     console.log(`[Fal AI] Face image: ${faceImageUrl.substring(0, 50)}...`);
-    if (appearance) {
-      console.log(`[Fal AI] Child appearance provided for enhanced quality`);
-    }
 
-    if (useNanoBanana) {
-      try {
-        return await swapFaceWithNanoBanana(baseImageUrl, faceImageUrl, appearance);
-      } catch (nanoBananaError) {
-        console.warn(`[Fal AI] Nano Banana Pro failed, falling back to basic face-swap:`, nanoBananaError);
-        return await swapFaceBasic(baseImageUrl, faceImageUrl);
-      }
+    try {
+      return await swapFaceWithNanoBanana(baseImageUrl, faceImageUrl);
+    } catch (nanoBananaError) {
+      console.warn(`[Fal AI] Nano Banana Pro failed, falling back to basic face-swap:`, nanoBananaError);
+      return await swapFaceBasic(baseImageUrl, faceImageUrl);
     }
-
-    return await swapFaceBasic(baseImageUrl, faceImageUrl);
   } catch (error) {
     console.error("[Fal AI] Face swap error:", error);
     throw new Error(`Face swap failed: ${error instanceof Error ? error.message : "Unknown error"}`);

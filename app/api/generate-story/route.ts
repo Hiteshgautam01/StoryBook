@@ -1,10 +1,5 @@
 import { NextRequest } from "next/server";
-import {
-  swapFace,
-  analyzeChildPhoto,
-  parseChildDescription,
-  ChildAppearance,
-} from "@/lib/fal-client";
+import { swapFace } from "@/lib/fal-client";
 import { supabase, STORAGE_BUCKET, isSupabaseConfigured } from "@/lib/supabase";
 import {
   STORY_PAGES,
@@ -12,17 +7,14 @@ import {
   personalizeArabicText,
   getPageImageUrl,
 } from "@/lib/prompts/story-pages";
-import { createDefaultDescription } from "@/lib/prompts/composer";
-import { Gender } from "@/types";
 
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 2000;
-const PARALLEL_BATCH_SIZE = 3;
+const MAX_RETRIES = 2;
+const RETRY_DELAY = 3000;
+const PARALLEL_BATCH_SIZE = 2; // Reduced to avoid overwhelming Fal AI
 
 interface GenerateStoryRequest {
   childName: string;
   childPhotoUrl: string; // Uploaded child's photo for face swap
-  gender?: Gender; // Optional: for better appearance analysis
 }
 
 function createSSEMessage(data: object): string {
@@ -40,8 +32,7 @@ async function processPage(
   pageNumber: number,
   childPhotoUrl: string,
   childName: string,
-  baseUrl: string,
-  childAppearance?: ChildAppearance
+  baseUrl: string
 ): Promise<{
   pageNumber: number;
   imageUrl: string;
@@ -84,9 +75,7 @@ async function processPage(
         `[Generate Story] Page ${pageNumber}: Face swap attempt ${attempt}/${MAX_RETRIES}`
       );
 
-      const result = await swapFace(originalImageUrl, childPhotoUrl, {
-        appearance: childAppearance,
-      });
+      const result = await swapFace(originalImageUrl, childPhotoUrl);
 
       // Persist to Supabase Storage for permanent storage (if configured)
       let persistedUrl = result.imageUrl;
@@ -157,7 +146,7 @@ async function processPage(
 export async function POST(request: NextRequest) {
   try {
     const body: GenerateStoryRequest = await request.json();
-    const { childName, childPhotoUrl, gender } = body;
+    const { childName, childPhotoUrl } = body;
 
     if (!childName || !childPhotoUrl) {
       return new Response(
@@ -173,26 +162,6 @@ export async function POST(request: NextRequest) {
     console.log(`[Generate Story] Starting personalization for ${childName}`);
     console.log(`[Generate Story] Child photo: ${childPhotoUrl.substring(0, 50)}...`);
     console.log(`[Generate Story] Total pages: ${TOTAL_PAGES}`);
-
-    // Step 1: Analyze child's photo to extract appearance characteristics
-    let childAppearance: ChildAppearance | undefined;
-    const genderTerm = gender === "boy" ? "boy" : gender === "girl" ? "girl" : "child";
-
-    try {
-      console.log(`[Generate Story] Analyzing child's photo for appearance characteristics...`);
-      const description = await analyzeChildPhoto(childPhotoUrl, genderTerm);
-      childAppearance = parseChildDescription(description, genderTerm, 5);
-      console.log(`[Generate Story] Child appearance extracted:`);
-      console.log(`  - Skin tone: ${childAppearance.skinTone || "not detected"}`);
-      console.log(`  - Hair: ${childAppearance.hairColor || "not detected"} ${childAppearance.hairStyle || ""}`);
-      console.log(`  - Eyes: ${childAppearance.eyeColor || "not detected"}`);
-      console.log(`  - Face: ${childAppearance.faceShape || "not detected"}`);
-    } catch (analysisError) {
-      console.warn(`[Generate Story] Photo analysis failed, using default appearance:`, analysisError);
-      // Use default description as fallback
-      const defaultDescription = createDefaultDescription(gender || "neutral");
-      childAppearance = parseChildDescription(defaultDescription, genderTerm, 5);
-    }
 
     // Create SSE stream
     const encoder = new TextEncoder();
@@ -239,7 +208,7 @@ export async function POST(request: NextRequest) {
             // Process batch in parallel
             const batchResults = await Promise.all(
               batchPageNumbers.map((pageNum) =>
-                processPage(pageNum, childPhotoUrl, childName, baseUrl, childAppearance)
+                processPage(pageNum, childPhotoUrl, childName, baseUrl)
               )
             );
 
