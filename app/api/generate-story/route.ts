@@ -75,7 +75,7 @@ async function processPage(
         `[Generate Story] Page ${pageNumber}: Face swap attempt ${attempt}/${MAX_RETRIES}`
       );
 
-      const result = await swapFace(originalImageUrl, childPhotoUrl);
+      const result = await swapFace(originalImageUrl, childPhotoUrl, pageNumber);
 
       // Persist to Supabase Storage for permanent storage (if configured)
       let persistedUrl = result.imageUrl;

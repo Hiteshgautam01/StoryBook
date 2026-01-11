@@ -3,14 +3,10 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStory } from "@/context/StoryContext";
-import { useStoryGeneration, GeneratedPage, GenerationApproach } from "@/lib/hooks/useStoryGeneration";
+import { useStoryGeneration, GeneratedPage } from "@/lib/hooks/useStoryGeneration";
 import { GenerationProgress } from "@/components/generate/GenerationProgress";
 import { Button } from "@/components/ui/Button";
 import Image from "next/image";
-import { FALCON_STORY } from "@/lib/prompts/falcon-story";
-
-// Use face-swap to preserve beautiful pre-made illustrations with embedded Arabic text
-const GENERATION_APPROACH: GenerationApproach = "face-swap";
 
 export default function GeneratePage() {
   const router = useRouter();
@@ -49,10 +45,6 @@ export default function GeneratePage() {
     []
   );
 
-  const handleAnalysisComplete = useCallback((description: string) => {
-    console.log("Child appearance analyzed:", description);
-  }, []);
-
   const {
     status,
     currentPage,
@@ -64,13 +56,10 @@ export default function GeneratePage() {
     startGeneration,
     cancelGeneration,
     reset,
-    childDescription,
   } = useStoryGeneration({
-    approach: GENERATION_APPROACH,
     onPageComplete: handlePageComplete,
     onComplete: handleComplete,
     onError: handleError,
-    onAnalysisComplete: handleAnalysisComplete,
   });
 
   // Redirect if no profile

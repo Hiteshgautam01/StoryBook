@@ -6,12 +6,41 @@
  * For personalization, we swap the child's face with the uploaded photo.
  */
 
+/**
+ * Style DNA - Consistent art style definition for all illustrations
+ * This ensures the AI maintains the same aesthetic across all face swaps
+ */
+export const ILLUSTRATION_STYLE_DNA = {
+  medium: "gouache and watercolor painting",
+  texture: "soft brush strokes with visible paint texture",
+  lighting: "warm golden ambient lighting with soft shadows",
+  colorPalette: "rich jewel tones - deep purple, golden amber, turquoise, warm browns",
+  mood: "magical, dreamlike, warm and inviting",
+  quality: "professional children's book illustration, high detail",
+} as const;
+
+/**
+ * Child face position hints for each scene type
+ */
+export type ChildPose =
+  | "profile-left"      // Face turned left
+  | "profile-right"     // Face turned right
+  | "three-quarter"     // Slightly angled
+  | "front-facing"      // Looking at viewer
+  | "looking-up"        // Tilted up (at sky/falcon)
+  | "looking-down"      // Tilted down (at ground)
+  | "back-view"         // Back of head visible
+  | "side-silhouette";  // Side profile silhouette
+
 export interface StoryPageConfig {
   pageNumber: number;
   imageFile: string;           // Filename in /public/pagesimages/
   arabicText: string;          // Arabic text for the page
   hasChild: boolean;           // Whether the page has a child (needs face swap)
   description: string;         // Brief description of the scene
+  childPose?: ChildPose;       // Position of child's face in the scene
+  childPosition?: string;      // Where child appears in frame (e.g., "center", "left side")
+  sceneContext?: string;       // Additional scene details for better face integration
 }
 
 /**
@@ -26,139 +55,196 @@ export const STORY_PAGES: StoryPageConfig[] = [
     imageFile: "page-1.png",
     arabicText: "في ليلةٍ هادئة… كان فيصل يقف عند نافذته ينظر إلى السماء المليئة بالنجوم.",
     hasChild: true,
-    description: "Boy at bedroom window looking at stars"
+    description: "Boy at bedroom window looking at stars",
+    childPose: "profile-left",
+    childPosition: "center-right, standing at window",
+    sceneContext: "Indoor bedroom scene, moonlit, child gazing out window at starry night sky"
   },
   {
     pageNumber: 2,
     imageFile: "page-2.png",
     arabicText: "وفجأة… ظهر صقرٌ تلمع جناحاه كالذهب أمام نافذته!",
     hasChild: true,
-    description: "Boy in bedroom seeing golden falcon at window"
+    description: "Boy in bedroom seeing golden falcon at window",
+    childPose: "three-quarter",
+    childPosition: "center, looking toward window",
+    sceneContext: "Indoor bedroom, child surprised and amazed, golden falcon visible at window"
   },
   {
     pageNumber: 3,
     imageFile: "page-3.png",
     arabicText: "قال الصقر بصوتٍ دافئ: \"أنا من صقور هذه الأرض… أحمل حكاية وطنك.\"",
     hasChild: true,
-    description: "Boy talking to falcon at window"
+    description: "Boy talking to falcon at window",
+    childPose: "profile-right",
+    childPosition: "left side, facing the falcon",
+    sceneContext: "Indoor scene, intimate conversation, child listening intently to majestic falcon"
   },
   {
     pageNumber: 4,
     imageFile: "page-4.png",
     arabicText: "أمسك فيصل بجناح الصقر، فانطلقا عاليًا في السماء.",
     hasChild: true,
-    description: "Boy holding falcon's wing, taking off into night sky"
+    description: "Boy holding falcon's wing, taking off into night sky",
+    childPose: "looking-up",
+    childPosition: "center, ascending into sky",
+    sceneContext: "Magical flight scene, child holding falcon, lifting off from bedroom into starry night"
   },
   {
     pageNumber: 5,
     imageFile: "page-5.png",
     arabicText: "رأى فيصل مكة من الأعلى… الكعبة تُضيء قلوب الناس بنور الإيمان.",
     hasChild: true,
-    description: "Boy riding falcon over Makkah, Kaaba visible below"
+    description: "Boy riding falcon over Makkah, Kaaba visible below",
+    childPose: "looking-down",
+    childPosition: "upper portion, riding on falcon",
+    sceneContext: "Aerial view of Makkah, Kaaba glowing below, child in awe looking down from falcon"
   },
   {
     pageNumber: 6,
     imageFile: "page-6.png",
     arabicText: "قال الصقر: \"من هنا بدأ نور الإسلام… هنا يتعلم الناس الرحمة والصدق.\"",
     hasChild: true,
-    description: "Boy on falcon near Kaaba, falcon speaking"
+    description: "Boy on falcon near Kaaba, falcon speaking",
+    childPose: "three-quarter",
+    childPosition: "center, beside falcon",
+    sceneContext: "Hovering near Kaaba, sacred atmosphere, child listening to falcon's wisdom"
   },
   {
     pageNumber: 7,
     imageFile: "page-7.png",
     arabicText: "اتجها إلى المدينة المنوّرة… حيث عاش رسول الله ﷺ.",
     hasChild: true,
-    description: "Boy on falcon at Prophet's Mosque in Madinah"
+    description: "Boy on falcon at Prophet's Mosque in Madinah",
+    childPose: "looking-down",
+    childPosition: "upper area, flying over mosque",
+    sceneContext: "Prophet's Mosque green dome visible, serene night, child gazing at holy site"
   },
   {
     pageNumber: 8,
     imageFile: "page-8.png",
     arabicText: "رأى فيصل حلقات العلم تحت النخيل، والأطفال يتعلّمون الكتابة والقراءة.",
     hasChild: true,
-    description: "Boy watching children learning under palm trees"
+    description: "Boy watching children learning under palm trees",
+    childPose: "looking-down",
+    childPosition: "upper portion, observing from above",
+    sceneContext: "Palm grove scene, traditional learning circles below, child observing from falcon"
   },
   {
     pageNumber: 9,
     imageFile: "page-9.png",
     arabicText: "طار الصقر إلى نجد… حيث تمتد الصحراء والوديان.",
     hasChild: true,
-    description: "Boy riding falcon over Najd desert canyons"
+    description: "Boy riding falcon over Najd desert canyons",
+    childPose: "profile-right",
+    childPosition: "center, riding falcon in flight",
+    sceneContext: "Vast desert landscape, dramatic canyons below, wind in child's hair"
   },
   {
     pageNumber: 10,
     imageFile: "page-10.png",
     arabicText: "قال الصقر: \"هذه الرياض… قلب الجزيرة العربية.\"",
     hasChild: true,
-    description: "Boy on falcon viewing Riyadh skyline at twilight"
+    description: "Boy on falcon viewing Riyadh skyline at twilight",
+    childPose: "looking-down",
+    childPosition: "upper area, overlooking city",
+    sceneContext: "Modern Riyadh skyline at golden hour, child amazed by city lights"
   },
   {
     pageNumber: 11,
     imageFile: "page-11.png",
     arabicText: "شاهد فيصل الرياض وهي تتغيّر… من حصون طينية إلى أبراج وروائع حديثة.",
     hasChild: true,
-    description: "Boy on falcon between old Masmak and modern Kingdom Tower"
+    description: "Boy on falcon between old Masmak and modern Kingdom Tower",
+    childPose: "three-quarter",
+    childPosition: "center, floating between old and new",
+    sceneContext: "Split scene showing historical Masmak Fort and modern Kingdom Tower"
   },
   {
     pageNumber: 12,
     imageFile: "page-12.png",
     arabicText: "واصل الصقر طريقه نحو الشمال… إلى العلا ومدائن صالح.",
     hasChild: true,
-    description: "Boy with falcon at AlUla ancient tombs"
+    description: "Boy with falcon at AlUla ancient tombs",
+    childPose: "looking-up",
+    childPosition: "lower portion, among rock formations",
+    sceneContext: "Dramatic AlUla rock formations, ancient Nabataean tombs, mystical atmosphere"
   },
   {
     pageNumber: 13,
     imageFile: "page-13.png",
     arabicText: "قال الصقر: \"هنا نحت الإنسان الجبال، وبنى مدنًا وحضارات لا تُنسى.\"",
     hasChild: true,
-    description: "Boy riding falcon through Hegra monuments"
+    description: "Boy riding falcon through Hegra monuments",
+    childPose: "profile-left",
+    childPosition: "center, flying past carved facades",
+    sceneContext: "Hegra carved rock tombs, dramatic lighting, child in wonder at ancient craftsmanship"
   },
   {
     pageNumber: 14,
     imageFile: "page-14.png",
     arabicText: "هبط الصقر جنوبًا… حيث بيوت عسير تقف على الجبال كأنها تحرس السماء.",
     hasChild: true,
-    description: "Boy sitting with falcon on Asir mountain peak"
+    description: "Boy sitting with falcon on Asir mountain peak",
+    childPose: "profile-right",
+    childPosition: "right side, seated on mountain",
+    sceneContext: "Asir mountain village, colorful traditional houses, misty peaks, child resting"
   },
   {
     pageNumber: 15,
     imageFile: "page-15.png",
     arabicText: "طار الصقر شرقًا… حتى رأى فيصل البحر والمصافي الكبيرة.",
     hasChild: true,
-    description: "Boy on falcon over Eastern Province oil refineries"
+    description: "Boy on falcon over Eastern Province oil refineries",
+    childPose: "looking-down",
+    childPosition: "upper portion, flying over industrial landscape",
+    sceneContext: "Persian Gulf coast, oil refineries glowing, modern industry meets sea"
   },
   {
     pageNumber: 16,
     imageFile: "page-16.png",
     arabicText: "قال الصقر: \"كل مدينة تقول لك… أنا قطعة من وطنك.\"",
     hasChild: true,
-    description: "Boy with falcon, feathers floating, emotional moment"
+    description: "Boy with falcon, feathers floating, emotional moment",
+    childPose: "front-facing",
+    childPosition: "center, emotional close-up",
+    sceneContext: "Intimate moment, golden feathers floating around, child's face shows wonder"
   },
   {
     pageNumber: 17,
     imageFile: "page-17.png",
     arabicText: "قال: \"يا فيصل… ما يجمع هذه البلاد هو همة السعوديين وقيمهم.\"",
     hasChild: true,
-    description: "Boy on falcon viewing map of Saudi Arabia from above"
+    description: "Boy on falcon viewing map of Saudi Arabia from above",
+    childPose: "looking-down",
+    childPosition: "upper area, above glowing map",
+    sceneContext: "Magical map of Saudi Arabia glowing below, child seeing the whole nation"
   },
   {
     pageNumber: 18,
     imageFile: "page-18.png",
     arabicText: "قال الصقر: \"كل مدينة تقول لك… أنا قطعة من وطنك.\"",
     hasChild: true,
-    description: "Boy with falcon, golden feathers floating"
+    description: "Boy with falcon, golden feathers floating",
+    childPose: "three-quarter",
+    childPosition: "center, surrounded by feathers",
+    sceneContext: "Magical moment, golden feathers swirling, child reaching out to touch them"
   },
   {
     pageNumber: 19,
     imageFile: "page-19.png",
     arabicText: "عاد الصقر يخفّض جناحيه… يقترب من نافذة فيصل.",
     hasChild: true,
-    description: "Falcon returning to boy at bedroom window"
+    description: "Falcon returning to boy at bedroom window",
+    childPose: "profile-left",
+    childPosition: "right side, at window",
+    sceneContext: "Return to bedroom window, dawn breaking, child ready to land back home"
   },
   {
     pageNumber: 20,
     imageFile: "page-20.png",
     arabicText: "همس الصقر: \"الأمة تبنى من كلمات صغيرة، وقلوب كبيرة.\"",
-    hasChild: false, // Falcon close-up only
+    hasChild: false,
     description: "Close-up of falcon whispering farewell"
   },
   {
@@ -166,13 +252,16 @@ export const STORY_PAGES: StoryPageConfig[] = [
     imageFile: "page-21.png",
     arabicText: "عاد فيصل إلى غرفته… لكن قلبه أصبح أوسع وأغنى بحكايات وطنه.",
     hasChild: true,
-    description: "Boy in bedroom holding storybook"
+    description: "Boy in bedroom holding storybook",
+    childPose: "front-facing",
+    childPosition: "center, sitting on bed",
+    sceneContext: "Cozy bedroom, morning light, child holding book, golden feather visible nearby"
   },
   {
     pageNumber: 22,
     imageFile: "page-22.png",
     arabicText: "الخاتمة",
-    hasChild: false, // Book and feather only, no child
+    hasChild: false,
     description: "The End - golden feather on open book"
   },
 ];
@@ -217,4 +306,70 @@ export const TOTAL_PAGES = STORY_PAGES.length;
  */
 export function personalizeArabicText(arabicText: string, childName: string): string {
   return arabicText.replace(/فيصل/g, childName);
+}
+
+/**
+ * Convert pose type to natural language description
+ */
+function getPoseDescription(pose: ChildPose): string {
+  const poseDescriptions: Record<ChildPose, string> = {
+    "profile-left": "face turned to the left, showing left profile",
+    "profile-right": "face turned to the right, showing right profile",
+    "three-quarter": "face at three-quarter angle, slightly turned",
+    "front-facing": "face looking directly forward at the viewer",
+    "looking-up": "face tilted upward, looking at the sky",
+    "looking-down": "face tilted downward, looking below",
+    "back-view": "back of head visible, facing away",
+    "side-silhouette": "side silhouette profile",
+  };
+  return poseDescriptions[pose] || "neutral position";
+}
+
+/**
+ * Build a page-specific face swap prompt with scene context
+ * This creates a detailed prompt that helps the AI understand exactly what to do
+ */
+export function buildPageSpecificPrompt(pageNumber: number): string {
+  const page = getPageConfig(pageNumber);
+
+  if (!page || !page.hasChild) {
+    return ""; // No prompt needed for pages without children
+  }
+
+  const style = ILLUSTRATION_STYLE_DNA;
+  const poseDesc = page.childPose ? getPoseDescription(page.childPose) : "natural position";
+
+  return `TASK: Replace the child's face in this children's book illustration with the face from the reference photo.
+
+SCENE CONTEXT:
+- Scene: ${page.sceneContext || page.description}
+- Child position: ${page.childPosition || "center of frame"}
+- Child's head angle: ${poseDesc}
+
+ART STYLE (MUST MATCH):
+- Medium: ${style.medium}
+- Texture: ${style.texture}
+- Lighting: ${style.lighting}
+- Colors: ${style.colorPalette}
+- Quality: ${style.quality}
+
+CRITICAL REQUIREMENTS:
+1. CONVERT the photo face into PAINTED/ILLUSTRATED style - DO NOT paste a photorealistic face
+2. Match the exact head angle and position: ${poseDesc}
+3. Blend skin tone from photo but render with ${style.texture}
+4. PRESERVE completely: Arabic text, background, clothing, body, hair silhouette
+5. Match the ${style.lighting} of the original illustration
+6. Keep the ${style.mood} atmosphere intact
+
+OUTPUT: A seamless illustration where the child's face is naturally integrated, looking like it was always part of this ${style.medium} artwork.`;
+}
+
+/**
+ * Get a simplified prompt for basic face swap (fallback)
+ */
+export function getBasicFaceSwapContext(pageNumber: number): string {
+  const page = getPageConfig(pageNumber);
+  if (!page) return "";
+
+  return `Scene: ${page.description}. Child pose: ${page.childPose || "neutral"}. Position: ${page.childPosition || "center"}.`;
 }

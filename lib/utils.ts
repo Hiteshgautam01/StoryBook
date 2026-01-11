@@ -62,9 +62,31 @@ export async function exportStoryToPDF(
 }
 
 /**
- * Load an image URL and convert it to base64 data URL
+ * Load an image URL and convert it to base64 data URL.
+ * Uses server-side proxy for external URLs to bypass CORS restrictions.
  */
 async function loadImageAsBase64(url: string): Promise<string> {
+  // For local images or data URLs, use direct canvas loading
+  if (url.startsWith("/") || url.startsWith("data:")) {
+    return loadImageDirectly(url);
+  }
+
+  // For external URLs (Fal AI, Supabase), use server proxy to bypass CORS
+  const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(url)}`;
+  const response = await fetch(proxyUrl);
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to load image via proxy");
+  }
+
+  return data.data;
+}
+
+/**
+ * Load a local image directly via canvas (for URLs that don't have CORS issues)
+ */
+function loadImageDirectly(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
