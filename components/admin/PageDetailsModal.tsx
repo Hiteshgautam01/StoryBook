@@ -149,7 +149,10 @@ export function PageDetailsModal({
     [onClose, onPrevious, onNext, hasPrevious, hasNext]
   );
 
+  // Only add keyboard listener and hide overflow when modal is open
   useEffect(() => {
+    if (!page) return;
+
     document.addEventListener("keydown", handleKeyDown);
     document.body.style.overflow = "hidden";
 
@@ -157,7 +160,7 @@ export function PageDetailsModal({
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
-  }, [handleKeyDown]);
+  }, [handleKeyDown, page]);
 
   // Reset copied state when page changes
   useEffect(() => {
