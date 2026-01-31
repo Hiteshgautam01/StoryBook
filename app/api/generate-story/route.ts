@@ -9,6 +9,8 @@ import {
 interface GenerateStoryRequest {
   childName: string;
   childPhotoUrl: string; // Uploaded child's photo for face swap
+  gender?: "boy" | "girl"; // Optional gender for portrait generation
+  pageNumbers?: number[]; // Optional specific pages to generate (default: all)
 }
 
 function createSSEMessage(data: object): string {
@@ -59,7 +61,7 @@ async function persistToStorage(
 export async function POST(request: NextRequest) {
   try {
     const body: GenerateStoryRequest = await request.json();
-    const { childName, childPhotoUrl } = body;
+    const { childName, childPhotoUrl, gender, pageNumbers } = body;
 
     if (!childName || !childPhotoUrl) {
       return new Response(
@@ -75,6 +77,8 @@ export async function POST(request: NextRequest) {
     console.log(`[Generate Story] Starting hybrid pipeline for child: "${childName}"`);
     console.log(`[Generate Story] Child name length: ${childName.length} characters`);
     console.log(`[Generate Story] Child photo: ${childPhotoUrl.substring(0, 50)}...`);
+    console.log(`[Generate Story] Gender: ${gender || "not specified"}`);
+    console.log(`[Generate Story] Pages: ${pageNumbers ? pageNumbers.join(", ") : "all"}`);
 
     // Create SSE stream
     const encoder = new TextEncoder();
@@ -101,6 +105,8 @@ export async function POST(request: NextRequest) {
             {
               childPhotoUrl,
               childName,
+              gender,
+              pageNumbers,
               baseUrl,
               concurrency: 3,
               enableFallbacks: true,

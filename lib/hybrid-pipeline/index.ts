@@ -161,15 +161,21 @@ export async function executeHybridPipeline(
 
   const pagesNeedingSwap = getPagesNeedingFaceSwap();
 
+  // Determine pages to process
+  const pagesToProcess = config.pageNumbers && config.pageNumbers.length > 0
+    ? config.pageNumbers
+    : Array.from({ length: TOTAL_PAGES }, (_, i) => i + 1);
+  const pagesWithChildToProcess = pagesToProcess.filter(p => pagesNeedingSwap.includes(p));
+
   // Send start event
   sendSSE?.({
     type: "start",
-    totalPages: TOTAL_PAGES,
-    pagesNeedingSwap: pagesNeedingSwap.length,
+    totalPages: pagesToProcess.length,
+    pagesNeedingSwap: pagesWithChildToProcess.length,
   });
 
   console.log(`[Pipeline] Starting hybrid pipeline for ${config.childName}`);
-  console.log(`[Pipeline] Total pages: ${TOTAL_PAGES}, needing swap: ${pagesNeedingSwap.length}`);
+  console.log(`[Pipeline] Pages to process: ${pagesToProcess.length}, needing swap: ${pagesWithChildToProcess.length}`);
 
   // ═══════════════════════════════════════════════════════════════════
   // STAGE 1: Generate stylized portraits
@@ -218,11 +224,10 @@ export async function executeHybridPipeline(
     "original": 0,
   };
 
-  // Process all pages (both with and without children)
-  const allPageNumbers = Array.from({ length: TOTAL_PAGES }, (_, i) => i + 1);
-  const batches = batchArray(allPageNumbers, concurrency);
+  // Use pre-computed pages to process
+  const batches = batchArray(pagesToProcess, concurrency);
 
-  console.log(`[Pipeline] Stage 2: Processing ${TOTAL_PAGES} pages in ${batches.length} batches...`);
+  console.log(`[Pipeline] Stage 2: Processing ${pagesToProcess.length} pages in ${batches.length} batches...`);
 
   for (const batch of batches) {
     const batchResults = await Promise.all(
@@ -244,7 +249,7 @@ export async function executeHybridPipeline(
         success: result.success,
         method: result.method,
         completedCount: results.length,
-        totalPages: TOTAL_PAGES,
+        totalPages: pagesToProcess.length,
       });
     }
   }
@@ -262,14 +267,14 @@ export async function executeHybridPipeline(
   // Send completion event
   sendSSE?.({
     type: "complete",
-    totalPages: TOTAL_PAGES,
+    totalPages: pagesToProcess.length,
     successCount,
     failedCount,
     totalTime,
   });
 
   console.log(`[Pipeline] Complete in ${totalTime}ms`);
-  console.log(`[Pipeline] Success: ${successCount}/${TOTAL_PAGES}`);
+  console.log(`[Pipeline] Success: ${successCount}/${pagesToProcess.length}`);
   console.log(`[Pipeline] Method breakdown:`, methodBreakdown);
 
   return {
