@@ -161,6 +161,14 @@ export function Book() {
                     priority={page.id <= 2}
                     unoptimized={page.illustration.startsWith("http")}
                   />
+                  {/* Arabic text overlay */}
+                  {page.text && (
+                    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 via-black/60 to-transparent">
+                      <p className="text-xl md:text-2xl font-arabic text-white text-center leading-relaxed" dir="rtl">
+                        {page.text}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

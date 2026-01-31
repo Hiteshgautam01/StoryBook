@@ -51,6 +51,7 @@ export interface FallbackOptions {
   illustrationUrl: string;     // Pre-made illustration
   childPhotoUrl: string;       // Original child photo
   portraits: PortraitCache;    // Stylized portraits from Stage 1
+  gender?: "boy" | "girl";     // Child's gender for outfit selection (default: "boy")
   enableNanoBanana?: boolean;  // Enable Nano Banana fallback (default: true)
   enableBasicSwap?: boolean;   // Enable basic face swap fallback (default: true)
 }
@@ -69,7 +70,8 @@ export interface FallbackResult {
  */
 async function tryEaselWithOriginal(
   illustrationUrl: string,
-  childPhotoUrl: string
+  childPhotoUrl: string,
+  gender: "boy" | "girl" = "boy"
 ): Promise<string | null> {
   console.log("[Fallback] Trying Easel with original photo...");
 
@@ -77,6 +79,7 @@ async function tryEaselWithOriginal(
     baseImageUrl: illustrationUrl,
     swapImageUrl: childPhotoUrl,
     upscale: true,
+    gender,
   });
 
   return result?.imageUrl || null;
@@ -88,21 +91,25 @@ async function tryEaselWithOriginal(
 async function tryNanoBanana(
   illustrationUrl: string,
   childPhotoUrl: string,
-  pageNumber: number
+  pageNumber: number,
+  gender: "boy" | "girl" = "boy"
 ): Promise<string | null> {
-  console.log(`[Fallback] Trying Nano Banana Pro for page ${pageNumber}...`);
+  console.log(`[Fallback] Trying Nano Banana Pro for page ${pageNumber} (gender: ${gender})...`);
 
   try {
-    const prompt = buildPageSpecificPrompt(pageNumber);
+    const prompt = buildPageSpecificPrompt(pageNumber, gender);
 
     const result = await fal.subscribe("fal-ai/nano-banana-pro/edit", {
       input: {
         prompt,
         image_urls: [illustrationUrl, childPhotoUrl],
         num_images: 1,
-        aspect_ratio: "auto",
+        aspect_ratio: "match_input_image",  // FIXED: Preserve original illustration's aspect ratio to avoid stretching
         output_format: "png",
         resolution: "2K",
+        guidance_scale: 7.5,           // Increased for better prompt adherence
+        num_inference_steps: 35,       // Increased for higher quality
+        strength: 0.7,                 // Control how much to modify the base image
       },
       logs: true,
     });
@@ -110,8 +117,10 @@ async function tryNanoBanana(
     const data = result.data as NanoBananaResponse;
 
     if (data.images && data.images.length > 0) {
+      const img = data.images[0];
       console.log("[Fallback] Nano Banana Pro succeeded");
-      return data.images[0].url;
+      console.log(`[Fallback] DIMENSION TEST - Nano Banana output: ${img.width}x${img.height}px (ratio: ${(img.width / img.height).toFixed(2)}:1)`);
+      return img.url;
     }
 
     return null;
@@ -175,6 +184,7 @@ export async function executeFallbackChain(
     illustrationUrl,
     childPhotoUrl,
     portraits,
+    gender = "boy",
     enableNanoBanana = true,
     enableBasicSwap = true,
   } = options;
@@ -192,6 +202,7 @@ export async function executeFallbackChain(
         baseImageUrl: illustrationUrl,
         swapImageUrl: portrait.imageUrl,
         upscale: true,
+        gender,
       });
 
       if (result) {
@@ -210,7 +221,7 @@ export async function executeFallbackChain(
 
   // Fallback 1: Easel + Original Photo
   console.log(`[Fallback] Page ${pageNumber}: Trying Easel + original photo...`);
-  const easelOriginalResult = await tryEaselWithOriginal(illustrationUrl, childPhotoUrl);
+  const easelOriginalResult = await tryEaselWithOriginal(illustrationUrl, childPhotoUrl, gender);
   if (easelOriginalResult) {
     return {
       imageUrl: easelOriginalResult,
@@ -221,8 +232,8 @@ export async function executeFallbackChain(
 
   // Fallback 2: Nano Banana Pro
   if (enableNanoBanana) {
-    console.log(`[Fallback] Page ${pageNumber}: Trying Nano Banana Pro...`);
-    const nanoBananaResult = await tryNanoBanana(illustrationUrl, childPhotoUrl, pageNumber);
+    console.log(`[Fallback] Page ${pageNumber}: Trying Nano Banana Pro (gender: ${gender})...`);
+    const nanoBananaResult = await tryNanoBanana(illustrationUrl, childPhotoUrl, pageNumber, gender);
     if (nanoBananaResult) {
       return {
         imageUrl: nanoBananaResult,

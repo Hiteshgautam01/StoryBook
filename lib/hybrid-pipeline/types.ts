@@ -168,6 +168,7 @@ export interface EaselFaceSwapOptions {
   baseImageUrl: string;      // Pre-made illustration
   swapImageUrl: string;      // Stylized portrait (or original photo for fallback)
   upscale?: boolean;         // 2x quality boost (default: true)
+  gender?: "boy" | "girl";   // Child's gender for face detection hint (default: "boy")
 }
 
 /**
@@ -180,6 +181,7 @@ export interface HybridPipelineConfig {
   baseUrl: string;           // For constructing illustration URLs
   concurrency?: number;      // Pages to process in parallel (default: 3)
   enableFallbacks?: boolean; // Use fallback chain on failures (default: true)
+  pageNumbers?: number[];    // Specific pages to generate (default: all pages 1-22)
 }
 
 /**

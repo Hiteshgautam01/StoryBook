@@ -9,6 +9,8 @@ import {
 interface GenerateStoryRequest {
   childName: string;
   childPhotoUrl: string; // Uploaded child's photo for face swap
+  gender?: "boy" | "girl" | "neutral"; // Character style/gender for outfit selection
+  pageNumbers?: number[]; // Optional: Specific pages to generate (default: all)
 }
 
 function createSSEMessage(data: object): string {
@@ -59,7 +61,7 @@ async function persistToStorage(
 export async function POST(request: NextRequest) {
   try {
     const body: GenerateStoryRequest = await request.json();
-    const { childName, childPhotoUrl } = body;
+    const { childName, childPhotoUrl, gender, pageNumbers } = body;
 
     if (!childName || !childPhotoUrl) {
       return new Response(
@@ -68,12 +70,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Normalize gender - "neutral" defaults to "boy" for outfit selection
+    const normalizedGender: "boy" | "girl" = gender === "girl" ? "girl" : "boy";
+
     // Get base URL for images
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ||
       `${request.headers.get("x-forwarded-proto") || "http"}://${request.headers.get("host")}`;
 
-    console.log(`[Generate Story] Starting hybrid pipeline for ${childName}`);
+    console.log(`[Generate Story] Starting hybrid pipeline for child: "${childName}"`);
+    console.log(`[Generate Story] Child name length: ${childName.length} characters`);
+    console.log(`[Generate Story] Child name bytes: ${Buffer.from(childName).toString('hex')}`);
     console.log(`[Generate Story] Child photo: ${childPhotoUrl.substring(0, 50)}...`);
+    console.log(`[Generate Story] Gender/Character style: ${gender} → normalized to: ${normalizedGender}`);
+    if (pageNumbers && pageNumbers.length > 0) {
+      console.log(`[Generate Story] Generating specific pages: ${pageNumbers.join(', ')}`);
+    } else {
+      console.log(`[Generate Story] Generating all pages (1-22)`);
+    }
 
     // Create SSE stream
     const encoder = new TextEncoder();
@@ -83,7 +96,15 @@ export async function POST(request: NextRequest) {
 
         // SSE sender function for the hybrid pipeline
         const sendSSE = (event: SSEEvent) => {
-          controller.enqueue(encoder.encode(createSSEMessage(event)));
+          try {
+            // Check if controller is still open before enqueueing
+            if (controller.desiredSize !== null) {
+              controller.enqueue(encoder.encode(createSSEMessage(event)));
+            }
+          } catch (error) {
+            // Silently ignore if stream is already closed
+            console.log('[Generate Story] SSE stream closed, continuing without updates');
+          }
         };
 
         try {
@@ -92,9 +113,11 @@ export async function POST(request: NextRequest) {
             {
               childPhotoUrl,
               childName,
+              gender: normalizedGender,
               baseUrl,
               concurrency: 3,
               enableFallbacks: true,
+              pageNumbers,
             },
             async (event: SSEEvent) => {
               // Handle image events specially to persist to Supabase
@@ -110,6 +133,9 @@ export async function POST(request: NextRequest) {
                   ...event,
                   imageUrl: persistedUrl,
                 };
+
+                // Log the arabicText to debug name replacement
+                console.log(`[Generate Story] Page ${event.pageNumber} arabicText preview: "${event.arabicText?.substring(0, 60)}..."`);
 
                 allPages.push({
                   pageNumber: event.pageNumber,
@@ -131,37 +157,53 @@ export async function POST(request: NextRequest) {
           // Send final completion with all pages
           const successCount = allPages.filter(p => p.success).length;
 
-          controller.enqueue(
-            encoder.encode(
-              createSSEMessage({
-                type: "complete",
-                totalPages: result.pages.length,
-                successCount,
-                failedCount: result.pages.length - successCount,
-                totalTime: result.totalTime,
-                portraitTime: result.portraitGenerationTime,
-                pageTime: result.pageProcessingTime,
-                methodBreakdown: result.methodBreakdown,
-                pages: allPages.sort((a, b) => a.pageNumber - b.pageNumber),
-              })
-            )
-          );
+          try {
+            if (controller.desiredSize !== null) {
+              controller.enqueue(
+                encoder.encode(
+                  createSSEMessage({
+                    type: "complete",
+                    totalPages: result.pages.length,
+                    successCount,
+                    failedCount: result.pages.length - successCount,
+                    totalTime: result.totalTime,
+                    portraitTime: result.portraitGenerationTime,
+                    pageTime: result.pageProcessingTime,
+                    methodBreakdown: result.methodBreakdown,
+                    pages: allPages.sort((a, b) => a.pageNumber - b.pageNumber),
+                  })
+                )
+              );
+            }
+          } catch (error) {
+            console.log('[Generate Story] Could not send completion event, stream closed');
+          }
 
           console.log(`[Generate Story] Complete in ${result.totalTime}ms`);
           console.log(`[Generate Story] Success: ${successCount}/${result.pages.length}`);
           console.log(`[Generate Story] Methods used:`, result.methodBreakdown);
         } catch (error) {
           console.error("[Generate Story] Pipeline error:", error);
-          controller.enqueue(
-            encoder.encode(
-              createSSEMessage({
-                type: "error",
-                message: error instanceof Error ? error.message : "Unknown error",
-              })
-            )
-          );
+          try {
+            if (controller.desiredSize !== null) {
+              controller.enqueue(
+                encoder.encode(
+                  createSSEMessage({
+                    type: "error",
+                    message: error instanceof Error ? error.message : "Unknown error",
+                  })
+                )
+              );
+            }
+          } catch (enqueueError) {
+            console.log('[Generate Story] Could not send error event, stream closed');
+          }
         } finally {
-          controller.close();
+          try {
+            controller.close();
+          } catch (error) {
+            // Controller already closed
+          }
         }
       },
     });

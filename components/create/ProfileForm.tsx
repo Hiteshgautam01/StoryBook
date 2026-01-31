@@ -42,6 +42,8 @@ export function ProfileForm({ onComplete }: ProfileFormProps) {
 
       const uploadData = await uploadResponse.json();
       setPhotoUrl(uploadData.url);
+      console.log("📸 PHOTO URL:", uploadData.url);
+      console.log("Copy this URL for testing single pages ⬆️");
       setIsUploading(false);
     } catch (err) {
       setIsUploading(false);
@@ -188,10 +190,24 @@ export function ProfileForm({ onComplete }: ProfileFormProps) {
                 </p>
               )}
               {photoUrl && !isUploading && (
-                <p className="text-center text-sm text-green-600">
-                  <Sparkles className="w-4 h-4 inline mr-2" />
-                  Photo ready for personalization!
-                </p>
+                <div className="space-y-2">
+                  <p className="text-center text-sm text-green-600">
+                    <Sparkles className="w-4 h-4 inline mr-2" />
+                    Photo ready for personalization!
+                  </p>
+                  {/* Display URL for easy copying */}
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <p className="text-xs text-gray-500 mb-1">Photo URL (for testing):</p>
+                    <input
+                      type="text"
+                      value={photoUrl}
+                      readOnly
+                      onClick={(e) => e.currentTarget.select()}
+                      className="w-full text-xs bg-white border border-gray-300 rounded px-2 py-1 font-mono cursor-pointer hover:bg-gray-50"
+                      title="Click to select and copy"
+                    />
+                  </div>
+                </div>
               )}
             </div>
           ) : (
