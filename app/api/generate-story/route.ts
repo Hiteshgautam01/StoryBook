@@ -9,8 +9,6 @@ import {
 interface GenerateStoryRequest {
   childName: string;
   childPhotoUrl: string; // Uploaded child's photo for face swap
-  gender?: "boy" | "girl" | "neutral"; // Character style/gender for outfit selection
-  pageNumbers?: number[]; // Optional: Specific pages to generate (default: all)
 }
 
 function createSSEMessage(data: object): string {
@@ -61,7 +59,7 @@ async function persistToStorage(
 export async function POST(request: NextRequest) {
   try {
     const body: GenerateStoryRequest = await request.json();
-    const { childName, childPhotoUrl, gender, pageNumbers } = body;
+    const { childName, childPhotoUrl } = body;
 
     if (!childName || !childPhotoUrl) {
       return new Response(
@@ -70,23 +68,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Normalize gender - "neutral" defaults to "boy" for outfit selection
-    const normalizedGender: "boy" | "girl" = gender === "girl" ? "girl" : "boy";
-
     // Get base URL for images
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ||
       `${request.headers.get("x-forwarded-proto") || "http"}://${request.headers.get("host")}`;
 
     console.log(`[Generate Story] Starting hybrid pipeline for child: "${childName}"`);
     console.log(`[Generate Story] Child name length: ${childName.length} characters`);
-    console.log(`[Generate Story] Child name bytes: ${Buffer.from(childName).toString('hex')}`);
     console.log(`[Generate Story] Child photo: ${childPhotoUrl.substring(0, 50)}...`);
-    console.log(`[Generate Story] Gender/Character style: ${gender} → normalized to: ${normalizedGender}`);
-    if (pageNumbers && pageNumbers.length > 0) {
-      console.log(`[Generate Story] Generating specific pages: ${pageNumbers.join(', ')}`);
-    } else {
-      console.log(`[Generate Story] Generating all pages (1-22)`);
-    }
 
     // Create SSE stream
     const encoder = new TextEncoder();
@@ -113,11 +101,9 @@ export async function POST(request: NextRequest) {
             {
               childPhotoUrl,
               childName,
-              gender: normalizedGender,
               baseUrl,
               concurrency: 3,
               enableFallbacks: true,
-              pageNumbers,
             },
             async (event: SSEEvent) => {
               // Handle image events specially to persist to Supabase
@@ -133,9 +119,6 @@ export async function POST(request: NextRequest) {
                   ...event,
                   imageUrl: persistedUrl,
                 };
-
-                // Log the arabicText to debug name replacement
-                console.log(`[Generate Story] Page ${event.pageNumber} arabicText preview: "${event.arabicText?.substring(0, 60)}..."`);
 
                 allPages.push({
                   pageNumber: event.pageNumber,

@@ -168,7 +168,6 @@ export interface EaselFaceSwapOptions {
   baseImageUrl: string;      // Pre-made illustration
   swapImageUrl: string;      // Stylized portrait (or original photo for fallback)
   upscale?: boolean;         // 2x quality boost (default: true)
-  gender?: "boy" | "girl";   // Child's gender for face detection hint (default: "boy")
 }
 
 /**

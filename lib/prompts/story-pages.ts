@@ -20,6 +20,21 @@ export const ILLUSTRATION_STYLE_DNA = {
 } as const;
 
 /**
+ * Canonical Falcon Design - MUST be consistent across all scenes with the falcon
+ * The falcon appears in pages 2-19 and must have CORRECT anatomy
+ */
+export const CANONICAL_FALCON = {
+  anatomy: "CRITICAL ANATOMY - REAL FALCON: The falcon MUST have exactly TWO wings (one on each side of its body), like a real bird. Never three wings, never one wing. Two symmetrical wings attached at the shoulders.",
+  appearance: "majestic golden falcon with wings that shimmer like burnished gold, powerful broad wingspan, sleek aerodynamic body",
+  feathers: "golden-bronze feathers with iridescent highlights, each feather detailed and layered naturally",
+  eyes: "piercing intelligent amber-gold eyes, wise and ancient",
+  size: "large majestic falcon, large enough for a child to ride on its back",
+  motion: "wings beat powerfully and gracefully, feathers ripple in the wind, tail feathers fan for steering",
+  glow: "subtle magical golden aura emanates from the falcon, especially from wing tips",
+  personality: "noble, wise, protective guide - the spirit of Saudi heritage",
+} as const;
+
+/**
  * Canonical Bedroom Design - MUST be consistent across all bedroom scenes
  * Pages 1, 2, 3, 4, 19, 21 all feature the same bedroom
  */
@@ -114,47 +129,6 @@ export const CANONICAL_OUTFIT = {
       "colors complement the warm desert and night sky scenes",
   },
 
-  // GIRL'S ABAYA - Alternative traditional outer garment for girls - ⚠️ GIRLS ONLY
-  girlAbaya: {
-    genderRestriction: "⚠️ MANDATORY: GIRLS ONLY - Abaya is a female outer garment. Boys wear thobe instead.",
-    garment: "traditional Saudi abaya (elegant full-length outer cloak)",
-    description: "beautiful traditional abaya suitable for a young girl, " +
-      "full-length loose-fitting outer cloak reaching to ankles, " +
-      "long wide sleeves, " +
-      "open front design that flows gracefully, " +
-      "worn over dress or clothing underneath, " +
-      "elegant and modest silhouette",
-    structure: "ABAYA STRUCTURE: " +
-      "open-front flowing cloak (like a long open cardigan/robe), " +
-      "no buttons or closures - worn open and flowing, " +
-      "wide sleeves that drape beautifully, " +
-      "lightweight fabric that moves with the body, " +
-      "creates an elegant flowing silhouette",
-    fit: "loose and flowing throughout, " +
-      "drapes gracefully over the body, " +
-      "allows complete freedom of movement for flying adventure",
-    fabric: "lightweight flowing fabric (chiffon, crepe, or soft cotton), " +
-      "has beautiful draping and movement quality, " +
-      "catches the wind elegantly",
-    inMotion: "WHEN FLYING OR IN MOTION: " +
-      "the abaya flows dramatically and gracefully with the wind, " +
-      "the open front panels may billow and flutter like gentle wings, " +
-      "wide sleeves catch the wind beautifully, " +
-      "creates a magical, ethereal, princess-like appearance while flying, " +
-      "the fabric ripples and dances in the air, " +
-      "underneath dress remains visible as abaya flows open",
-    colors: "traditionally BLACK abaya, but can also be: " +
-      "deep navy blue, dark burgundy, or rich dark purple, " +
-      "may have elegant gold or silver embroidery along edges, " +
-      "subtle beading or decorative trim on sleeves and hem, " +
-      "can have delicate lace or embroidered patterns",
-    withHijab: "OPTIONAL HIJAB: " +
-      "may be paired with a matching or complementary hijab (headscarf), " +
-      "hijab drapes softly around head and shoulders, " +
-      "hijab fabric flows gently in the wind during flight, " +
-      "creates a complete traditional look",
-  },
-
   // Helper text for prompts - gender-conditional outfit instructions
   flyingOutfitPrompt: {
     boy: "OUTFIT (BOY - THOBE): Child wears traditional Saudi white thobe. " +
@@ -164,18 +138,49 @@ export const CANONICAL_OUTFIT = {
       "⚠️ CRITICAL: Girls do NOT wear thobe - thobe is a male-only garment. " +
       "The dress flows gracefully in the wind, creating a magical princess-like appearance. " +
       "Rich jewel-tone colors (purple, turquoise, burgundy) with possible gold embroidery.",
-    girlAbaya: "OUTFIT (GIRL - ABAYA): Child wears a traditional Saudi abaya (elegant full-length outer cloak). " +
-      "⚠️ CRITICAL: Girls do NOT wear thobe - thobe is a male-only garment. " +
-      "The abaya is an open-front flowing cloak worn over a dress underneath. " +
-      "In flight, the abaya flows dramatically and gracefully, panels billowing like gentle wings. " +
-      "Traditional black or dark jewel tones (navy, burgundy, purple) with elegant gold/silver embroidery. " +
-      "May be paired with a matching hijab that flows softly in the wind.",
     genderNote: "⚠️ GENDER OUTFIT RULE (MUST FOLLOW): " +
       "If child is BOY → wears white thobe (traditional male garment). " +
-      "If child is GIRL → wears colorful traditional dress OR abaya (NOT thobe - thobe is male-only). " +
+      "If child is GIRL → wears colorful traditional dress (NOT thobe - thobe is male-only). " +
       "This is a cultural accuracy requirement that must be followed no matter what.",
   },
 } as const;
+
+/**
+ * Get the outfit prompt for a specific gender
+ * This is used at runtime to inject the correct outfit instructions
+ *
+ * @param gender - "boy" or "girl"
+ * @param isFlying - whether this is a flying/outdoor scene (pages 4-19)
+ * @returns The outfit instruction string for the prompt
+ */
+export function getOutfitPromptForGender(
+  gender: "boy" | "girl",
+  isFlying: boolean = true
+): string {
+  if (!isFlying) {
+    // Bedroom scenes - same outfit for both
+    return `OUTFIT: ${CANONICAL_OUTFIT.bedroom.garment}. ${CANONICAL_OUTFIT.bedroom.description}`;
+  }
+
+  // Flying/outdoor scenes - gender-specific
+  if (gender === "girl") {
+    return `OUTFIT (GIRL - TRADITIONAL DRESS):
+Child wears a beautiful traditional flowing dress with long sleeves.
+⚠️ CRITICAL: Girls do NOT wear thobe - thobe is a MALE-ONLY garment.
+${CANONICAL_OUTFIT.girlDress.description}.
+${CANONICAL_OUTFIT.girlDress.inMotion}.
+Colors: ${CANONICAL_OUTFIT.girlDress.colors}.
+The dress flows gracefully in the wind, creating a magical princess-like appearance.`;
+  }
+
+  // Boy - thobe
+  return `OUTFIT (BOY - THOBE):
+Child wears ${CANONICAL_OUTFIT.thobe.garment}.
+${CANONICAL_OUTFIT.thobe.structure}.
+${CANONICAL_OUTFIT.thobe.notACape}.
+${CANONICAL_OUTFIT.thobe.inMotion}.
+Colors: ${CANONICAL_OUTFIT.thobe.colors}.`;
+}
 
 /**
  * Child face position hints for each scene type
@@ -445,41 +450,14 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy riding falcon through Hegra monuments",
     childPose: "profile-left",
     childPosition: "center, flying past carved facades",
-    sceneContext: `FLYING SCENE AT HEGRA - Child wearing traditional thobe while riding falcon.
-
-    ⚠️⚠️⚠️ CRITICAL THOBE CORRECTION - READ CAREFULLY ⚠️⚠️⚠️
-
-    THE THOBE IS **NOT** A CAPE. DO NOT DRAW IT LIKE A CAPE.
-
-    ❌ WRONG (DO NOT DO THIS):
-    - Thobe streaming/flying behind the child like a superhero cape
-    - Thobe attached only at shoulders with fabric billowing behind
-    - Child's chest/torso exposed with thobe flowing backward
-    - Cape-like dramatic flowing behind the body
-    - Thobe looking like Batman's cape or Superman's cape
-
-    ✅ CORRECT (DO THIS):
-    - Thobe is a LONG SHIRT/ROBE that the child WEARS (body is INSIDE it)
-    - Thobe wraps AROUND the entire body - front, sides, AND back
-    - Child's chest, stomach, and back are COVERED by the thobe
-    - The thobe has SLEEVES that the arms go through
-    - Only the bottom hem may flutter slightly in the wind
-    - Think of it like a long dress or hospital gown - you WEAR it, it doesn't fly behind you
-
-    THOBE STRUCTURE: ${CANONICAL_OUTFIT.thobe.structure}.
-    ${CANONICAL_OUTFIT.thobe.notACape}.
-
-    CORRECT IN-FLIGHT APPEARANCE:
-    - The thobe stays WRAPPED around the child's body at all times
-    - Wind causes gentle rippling of the fabric ON the body
-    - The bottom hem may lift slightly showing ankles
-    - Sleeves may billow slightly but remain on the arms
-    - The garment NEVER detaches or streams behind like a cape
-    - Child looks like they are wearing a white robe/dress while flying
+    sceneContext: `FLYING SCENE AT HEGRA - Child riding falcon.
 
     ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
     FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
     FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
+
+    IN-FLIGHT APPEARANCE: Outfit wraps AROUND the child's body (front, sides, back) - the wind may cause gentle rippling but the garment stays ON the body, not streaming behind like a cape.
+    The child is WEARING the outfit, with their body INSIDE it.
 
     SCENE: Hegra/Madain Saleh carved rock tombs with dramatic Nabataean facades, warm sunset lighting casting long shadows on ancient stonework, child riding falcon past monumental carved entrances, sense of ancient wonder and historical magnificence.`
   },
@@ -491,11 +469,12 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy sitting with falcon on Asir mountain peak",
     childPose: "profile-right",
     childPosition: "right side, seated on mountain",
-    sceneContext: `RESTING SCENE ON ASIR MOUNTAIN - Child wearing traditional thobe while seated.
+    sceneContext: `RESTING SCENE ON ASIR MOUNTAIN - Child seated with falcon.
 
-    OUTFIT (THOBE - NOT A CAPE): ${CANONICAL_OUTFIT.thobe.garment}.
-    ${CANONICAL_OUTFIT.thobe.structure}.
-    WHILE SEATED: Thobe drapes naturally around seated body, fabric pools slightly around legs, garment wraps the body properly.
+    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
+    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
+    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
+    WHILE SEATED: Outfit drapes naturally around seated body, fabric pools slightly around legs, garment wraps the body properly.
 
     SCENE: Asir mountain peak with colorful traditional Asiri houses visible on slopes, misty green peaks in background, cool mountain air, child resting peacefully with falcon after flight.`
   },
@@ -507,12 +486,12 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy on falcon over Eastern Province oil refineries",
     childPose: "looking-down",
     childPosition: "upper portion, flying over industrial landscape",
-    sceneContext: `FLYING SCENE OVER EASTERN PROVINCE - Child wearing traditional thobe while riding falcon.
+    sceneContext: `FLYING SCENE OVER EASTERN PROVINCE - Child riding falcon.
 
-    OUTFIT (THOBE - NOT A CAPE): ${CANONICAL_OUTFIT.thobe.garment}.
-    ${CANONICAL_OUTFIT.thobe.structure}.
-    IN-FLIGHT: ${CANONICAL_OUTFIT.thobe.inMotion}.
-    The thobe wraps AROUND the child's body - NOT streaming behind like a cape.
+    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
+    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
+    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
+    IN-FLIGHT: Outfit wraps AROUND the child's body - NOT streaming behind like a cape.
 
     SCENE: Persian Gulf coastline below, massive oil refineries with glowing lights, modern industry where sea meets desert, child observing Saudi's industrial might from above.`
   },
@@ -524,11 +503,12 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy with falcon, feathers floating, emotional moment",
     childPose: "front-facing",
     childPosition: "center, emotional close-up",
-    sceneContext: `EMOTIONAL CLOSE-UP SCENE - Child wearing traditional thobe.
+    sceneContext: `EMOTIONAL CLOSE-UP SCENE - Child with falcon.
 
-    OUTFIT (THOBE - NOT A CAPE): ${CANONICAL_OUTFIT.thobe.garment}.
-    ${CANONICAL_OUTFIT.thobe.structure}.
-    CLOSE-UP: Upper portion of thobe visible with proper collar and front closure, garment worn correctly around body.
+    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
+    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
+    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
+    CLOSE-UP: Upper portion of outfit visible, garment worn correctly around body.
 
     SCENE: Intimate emotional moment, golden falcon feathers floating magically around, child's face showing deep wonder and connection to homeland, soft golden lighting.`
   },
@@ -540,12 +520,12 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy on falcon viewing map of Saudi Arabia from above",
     childPose: "looking-down",
     childPosition: "upper area, above glowing map",
-    sceneContext: `FLYING SCENE OVER MAGICAL MAP - Child wearing traditional thobe while riding falcon.
+    sceneContext: `FLYING SCENE OVER MAGICAL MAP - Child riding falcon.
 
-    OUTFIT (THOBE - NOT A CAPE): ${CANONICAL_OUTFIT.thobe.garment}.
-    ${CANONICAL_OUTFIT.thobe.structure}.
-    IN-FLIGHT: ${CANONICAL_OUTFIT.thobe.inMotion}.
-    The thobe wraps AROUND the child's body - NOT streaming behind like a cape.
+    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
+    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
+    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
+    IN-FLIGHT: Outfit wraps AROUND the child's body - NOT streaming behind like a cape.
 
     SCENE: Magical glowing map of Saudi Arabia spread below like a treasure map, each region lighting up, child seeing the whole nation unified, profound moment of national pride and belonging.`
   },
@@ -557,11 +537,12 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy with falcon, golden feathers floating",
     childPose: "three-quarter",
     childPosition: "center, surrounded by feathers",
-    sceneContext: `MAGICAL FEATHER SCENE - Child wearing traditional thobe.
+    sceneContext: `MAGICAL FEATHER SCENE - Child with falcon.
 
-    OUTFIT (THOBE - NOT A CAPE): ${CANONICAL_OUTFIT.thobe.garment}.
-    ${CANONICAL_OUTFIT.thobe.structure}.
-    WHILE FLOATING: Thobe drapes naturally around body, gentle magical wind causes soft rippling but garment stays wrapped around body - NOT like a cape.
+    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
+    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
+    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
+    WHILE FLOATING: Outfit drapes naturally around body, gentle magical wind causes soft rippling but garment stays wrapped around body - NOT like a cape.
 
     SCENE: Magical moment surrounded by swirling golden falcon feathers, child reaching out to touch them with wonder, soft magical lighting, sense of enchantment and connection.`
   },
@@ -573,12 +554,12 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Falcon returning to boy at bedroom window",
     childPose: "profile-left",
     childPosition: "right side, at window",
-    sceneContext: `RETURN SCENE - Child returning to bedroom at dawn, still wearing thobe from adventure.
+    sceneContext: `RETURN SCENE - Child returning to bedroom at dawn, still wearing adventure outfit.
 
-    OUTFIT (THOBE - NOT A CAPE): ${CANONICAL_OUTFIT.thobe.garment}.
-    ${CANONICAL_OUTFIT.thobe.structure}.
-    LANDING/DESCENDING: ${CANONICAL_OUTFIT.thobe.inMotion}.
-    As child descends to land, thobe may flutter gently but stays wrapped around body - NOT streaming behind like a cape.
+    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
+    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
+    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
+    LANDING/DESCENDING: As child descends to land, outfit may flutter gently but stays wrapped around body - NOT streaming behind like a cape.
 
     SAME BEDROOM as pages 1-4 - MUST maintain IDENTICAL design, now at dawn.
     BED: ${CANONICAL_BEDROOM.bed}.
@@ -687,48 +668,48 @@ export function personalizeArabicText(arabicText: string, childName: string): st
 
   if (!childName || childName.trim() === '') {
     console.warn('[personalizeArabicText] Empty childName provided, using default');
+    console.warn('[personalizeArabicText] childName value:', JSON.stringify(childName), 'type:', typeof childName);
     return arabicText; // Return original text if no name provided
   }
 
   const trimmedName = childName.trim();
   const originalText = arabicText;
+  const hasFaisal = arabicText.includes('فيصل');
   const personalizedText = arabicText.replace(/فيصل/g, trimmedName);
 
-  // Log when replacement happens
-  if (originalText !== personalizedText) {
-    console.log(`[personalizeArabicText] Replaced "فيصل" with "${trimmedName}"`);
-  }
+  // Always log personalization attempt
+  console.log(`[personalizeArabicText] Input name: "${trimmedName}" (${trimmedName.length} chars)`);
+  console.log(`[personalizeArabicText] Has "فيصل": ${hasFaisal}`);
+  console.log(`[personalizeArabicText] Result: "${personalizedText.substring(0, 80)}..."`);
 
   return personalizedText;
 }
 
 /**
  * Convert pose type to natural language description
- * Enhanced to emphasize face preservation at every angle
  */
 function getPoseDescription(pose: ChildPose): string {
   const poseDescriptions: Record<ChildPose, string> = {
-    "profile-left": "face turned to the left showing left profile - CRITICAL: The visible eye must be crystal clear, perfectly shaped, and match the reference eye color exactly. Face shape and features must still be recognizable from the reference photo. Skin tone must match reference.",
-    "profile-right": "face turned to the right showing right profile - CRITICAL: The visible eye must be crystal clear, perfectly shaped, and match the reference eye color exactly. Face shape and features must still be recognizable from the reference photo. Skin tone must match reference.",
-    "three-quarter": "face at three-quarter angle, slightly turned - CRITICAL: Both eyes must be visible, clear, bright, and match reference eye color. Face shape, nose, and lips clearly visible and matching reference. Skin tone must match reference exactly.",
-    "front-facing": "face looking directly forward at the viewer - CRITICAL: This is the clearest view of the face. Both eyes must be perfectly symmetrical, clear, and match reference color exactly. All facial features must be a perfect match to the reference photo. Skin tone must be identical to reference.",
-    "looking-up": "face tilted upward, looking at the sky with wonder - CRITICAL: Despite the angle, the face must still be clearly recognizable as the child from the reference. Eyes looking upward but still clear and matching reference color. Skin tone consistent with reference.",
-    "looking-down": "face tilted downward, looking below - CRITICAL: Despite the angle, face shape and features must still match the reference. Forehead and hair clearly visible with exact hair color from reference. Skin tone consistent with reference.",
-    "back-view": "back of head visible, facing away - CRITICAL: Hair color, texture, and style must match the reference EXACTLY. Even from behind, the child must be identifiable by their hair.",
-    "side-silhouette": "side silhouette profile - CRITICAL: The silhouette shape must match the child's face shape from the reference. Hair style and profile contour must be recognizable.",
+    "profile-left": "face turned to the left showing left profile, one visible eye must be perfectly clear and accurately shaped",
+    "profile-right": "face turned to the right showing right profile, one visible eye must be perfectly clear and accurately shaped",
+    "three-quarter": "face at three-quarter angle, slightly turned",
+    "front-facing": "face looking directly forward at the viewer",
+    "looking-up": "face tilted upward, looking at the sky",
+    "looking-down": "face tilted downward, looking below",
+    "back-view": "back of head visible, facing away",
+    "side-silhouette": "side silhouette profile",
   };
-  return poseDescriptions[pose] || "neutral position - face must match reference photo exactly in all visible features";
+  return poseDescriptions[pose] || "neutral position";
 }
 
 /**
  * Build a page-specific face swap prompt with scene context
  * Enhanced for maximum identity preservation - the child MUST look exactly like their photo
  *
- * KEY CONCEPT: The child from the reference photo is the STAR of the storybook.
- * They are playing the main character role - like an actor in a movie made just for them.
- * The illustration must show THIS EXACT CHILD in the storybook scene.
+ * @param pageNumber - The page number to build prompt for
+ * @param gender - Optional gender for outfit selection (defaults to "boy")
  */
-export function buildPageSpecificPrompt(pageNumber: number): string {
+export function buildPageSpecificPrompt(pageNumber: number, gender: "boy" | "girl" = "boy"): string {
   const page = getPageConfig(pageNumber);
 
   if (!page || !page.hasChild) {
@@ -738,232 +719,117 @@ export function buildPageSpecificPrompt(pageNumber: number): string {
   const style = ILLUSTRATION_STYLE_DNA;
   const poseDesc = page.childPose ? getPoseDescription(page.childPose) : "natural position";
 
-  return `🎬 PERSONALIZED STORYBOOK: The child in the reference photo is the STAR of this story!
-This is THEIR book - they are PLAYING the main character role.
-Think of it like a movie poster where THIS SPECIFIC CHILD is the hero.
-This is a precious gift for a family - the child MUST look EXACTLY like themselves.
+  // Determine if this is a flying/outdoor scene (pages 4-19) or bedroom scene
+  const isFlyingScene = pageNumber >= 4 && pageNumber <= 19;
+  const outfitPrompt = getOutfitPromptForGender(gender, isFlyingScene);
 
-═══════════════════════════════════════════════════════════════════════════════
-🎭 THE CHILD IS THE STAR - FACE CLONING PROTOCOL
-═══════════════════════════════════════════════════════════════════════════════
-
-The child in the reference photo IS the main character.
-Every single feature of the child must be COPIED EXACTLY from the reference.
-Imagine painting a portrait of THIS SPECIFIC CHILD dressed as a storybook character.
-The face, skin, hair - everything must be IDENTICAL to the reference photo.
+  return `CRITICAL TASK: Create a personalized storybook illustration where the child looks EXACTLY like the reference photo.
+This is a gift for a family - the child MUST be immediately recognizable as THEIR child.
 
 SCENE CONTEXT:
 - Scene: ${page.sceneContext || page.description}
 - Child position: ${page.childPosition || "center of frame"}
 - Child's head angle: ${poseDesc}
 
-═══════════════════════════════════════════════════════════════════════════════
-🔴 RULE #1 - FACE IS SACRED (ZERO TOLERANCE FOR CHANGES)
-═══════════════════════════════════════════════════════════════════════════════
+OUTFIT REQUIREMENT (GENDER-SPECIFIC - MUST FOLLOW):
+${outfitPrompt}
 
-The child's face is their IDENTITY. It must be a DIRECT COPY from the reference.
-DO NOT modify, beautify, stylize, or change ANY facial feature.
-DO NOT make the face look "better" or "cuter" - copy it EXACTLY as it is.
-The face shape, proportions, and every detail must match the reference PRECISELY.
-
-FACE SHAPE (COPY EXACTLY):
-- If round → keep round. If oval → keep oval. If heart → keep heart.
-- Cheek fullness: Chubby cheeks stay chubby, slim cheeks stay slim.
-- Chin shape: Copy exactly - pointed, rounded, square, etc.
-- Jawline: Soft, defined, round - match the reference.
-- Forehead: Size and shape must match.
-- The OUTLINE/SILHOUETTE of the face must be identical to reference.
-
-═══════════════════════════════════════════════════════════════════════════════
-🔴 RULE #2 - SKIN TONE (HIGHEST PRIORITY - DEFINES WHO THE CHILD IS)
-═══════════════════════════════════════════════════════════════════════════════
-
-Skin color is the FOUNDATION of this child's appearance and identity.
-This is NON-NEGOTIABLE and must be PERFECT.
-
-SAMPLE the skin tone DIRECTLY from the reference photo:
-- DARK skin → paint DARK skin (same exact shade and undertone)
-- BROWN skin → paint BROWN skin (same exact shade and undertone)
-- OLIVE skin → paint OLIVE skin (same exact shade and undertone)
-- TAN skin → paint TAN skin (same exact shade and undertone)
-- LIGHT skin → paint LIGHT skin (same exact shade and undertone)
-- FAIR skin → paint FAIR skin (same exact shade and undertone)
-
-⚠️ CRITICAL VIOLATIONS (NEVER DO):
-- NEVER lighten dark skin
-- NEVER darken light skin
-- NEVER change the undertone (warm/cool)
-- NEVER make skin look washed out or grayish
-- NEVER make skin look too pink, too yellow, or too orange
-
-Skin tone must be CONSISTENT across:
-✓ Entire face
-✓ Neck
-✓ Ears
-✓ Hands (if visible)
-✓ Any exposed skin
-
-═══════════════════════════════════════════════════════════════════════════════
-🔴 RULE #3 - HAIR (CRITICAL IDENTITY MARKER - MUST BE IDENTICAL)
-═══════════════════════════════════════════════════════════════════════════════
-
-Parents notice hair changes INSTANTLY. Hair must be EXACTLY like the reference.
-
-HAIR COLOR (COPY THE EXACT COLOR):
-- BLACK hair → stays BLACK (not dark brown, not gray, not charcoal)
-- DARK BROWN hair → stays DARK BROWN (not black, not medium brown)
-- MEDIUM BROWN hair → stays MEDIUM BROWN (exact shade)
-- LIGHT BROWN hair → stays LIGHT BROWN (exact shade)
-- BLONDE hair → stays BLONDE (exact shade - platinum, golden, dirty blonde)
-- RED/AUBURN hair → stays RED/AUBURN (exact shade)
-  
-HAIR STYLE (COPY THE EXACT STYLE):
-- LENGTH: Short, medium, long - match exactly
-- TEXTURE: Straight, wavy, curly, coily, kinky - match exactly
-- PARTING: Left part, right part, middle part, no part - match exactly
-- BANGS: If present, include them. If not, don't add them.
-- SPECIAL STYLES: Braids, ponytail, buns, etc. - match exactly
-
-HAIR THICKNESS & VOLUME:
-- Thick hair → thick hair
-- Thin hair → thin hair
-- Voluminous hair → voluminous hair
-- Fine hair → fine hair
-
-═══════════════════════════════════════════════════════════════════════════════
-🔴 RULE #4 - EYES (THE WINDOW TO THE CHILD'S SOUL)
-═══════════════════════════════════════════════════════════════════════════════
-
-Eyes must be CLEAR, BRIGHT, and PERFECTLY FORMED.
-⚠️ DO NOT spoil, blur, distort, or damage the eyes in any way.
-
-EYE COLOR (MATCH EXACTLY):
-- BROWN eyes → BROWN (the exact shade from reference)
-- BLACK eyes → BLACK
-- DARK eyes → DARK
-- BLUE eyes → BLUE (only if in reference)
-- GREEN eyes → GREEN (only if in reference)
-- HAZEL eyes → HAZEL (only if in reference)
-
-EYE SHAPE (COPY EXACTLY):
-- Round, almond, hooded, monolid - whatever the reference shows
-- Eye size and spacing - match the reference proportions
-
-EYE QUALITY REQUIREMENTS:
-✓ Clear, bright, alive-looking eyes
-✓ Properly shaped iris with correct color
-✓ Natural highlights/reflections
-✓ No distortion, warping, or melting
-✓ No uneven sizes or misalignment
-
-═══════════════════════════════════════════════════════════════════════════════
-🔴 RULE #5 - ALL OTHER FACIAL FEATURES (COPY EVERYTHING)
-═══════════════════════════════════════════════════════════════════════════════
-
-NOSE:
-- Size: Small, medium, large - match reference
-- Shape: Button, straight, wide, narrow - match reference
-- Bridge and tip shape - copy exactly
-
-LIPS/MOUTH:
-- Fullness: Thin, medium, full - match reference
-- Shape: Bow-shaped, wide, narrow - match reference
-- Natural lip color from reference
-
-EYEBROWS:
-- Shape: Arched, straight, curved - match reference
-- Thickness: Thin, medium, thick - match reference
-- Color: Should match hair color from reference
-
-EARS (if visible):
-- Size and shape - match reference
-
-UNIQUE CHARACTERISTICS (MUST INCLUDE):
-- Freckles: If in reference, include them
-- Dimples: If in reference, include them
-- Birthmarks/moles: If visible in reference, include them
-- Any distinctive features that make this child unique
-
-═══════════════════════════════════════════════════════════════════════════════
-🔴 RULE #6 - AGE PRESERVATION
-═══════════════════════════════════════════════════════════════════════════════
-
-The child must look the SAME AGE as in the reference photo.
-- Baby features → keep baby features
-- Toddler features → keep toddler features
-- Young child features → keep young child features
-- Older child features → keep older child features
-
-DO NOT age up or age down the child.
-
-═══════════════════════════════════════════════════════════════════════════════
-ART STYLE (APPLY AFTER PRESERVING IDENTITY)
-═══════════════════════════════════════════════════════════════════════════════
-
+ART STYLE (MUST MATCH):
 - Medium: ${style.medium}
 - Texture: ${style.texture}
 - Lighting: ${style.lighting}
 - Colors: ${style.colorPalette}
 - Quality: ${style.quality}
+
+═══════════════════════════════════════════════════════════════════════════════
+IDENTITY PRESERVATION - MANDATORY REQUIREMENTS (DO NOT DEVIATE FROM REFERENCE)
+═══════════════════════════════════════════════════════════════════════════════
+
+1. FACE SHAPE (ESSENTIAL FOR RECOGNITION):
+   - Copy the EXACT face shape from the reference photo
+   - Round face must stay round, oval must stay oval, etc.
+   - Preserve cheek fullness, chin shape, jawline exactly as shown
+   - The silhouette of the face must match the reference
+
+2. SKIN TONE (HIGHEST PRIORITY - CORE IDENTITY):
+   - The child's skin color is a fundamental part of their identity
+   - Copy the EXACT skin color, shade, and undertone from reference photo
+   - Fair/light skin → use fair/light skin
+   - Medium/olive skin → use medium/olive skin
+   - Brown/dark skin → use brown/dark skin
+   - NEVER lighten or darken the skin under any circumstances
+   - Skin tone must be consistent across face, neck, ears, and any visible skin
+   - This is NON-NEGOTIABLE - incorrect skin tone makes the child unrecognizable
+
+3. HAIR (CRITICAL FOR RECOGNITION - MUST BE IDENTICAL):
+   - HAIR COLOR: Must match reference EXACTLY
+     * Black hair → BLACK (not brown, not gray)
+     * Brown hair → BROWN (the exact shade shown)
+     * Blonde hair → BLONDE (the exact shade shown)
+     * Red hair → RED (if shown in reference)
+   - HAIR STYLE: Copy EXACTLY from reference
+     * Length (short, medium, long)
+     * Texture (straight, wavy, curly, coily)
+     * Part location and direction
+     * Thickness and volume
+   - Hair color must be CONSISTENT across the entire story
+   - Parents will immediately notice if hair color changes
+
+4. EYES (ESSENTIAL FOR LIKENESS):
+   - EYE COLOR: Must match reference EXACTLY
+     * Brown eyes → BROWN
+     * Black eyes → BLACK
+     * Blue eyes → BLUE (only if in reference)
+     * Green/hazel → only if in reference
+   - EYE SHAPE: Copy exact shape (round, almond, hooded)
+   - EYE SIZE: Preserve relative size from reference
+   - Eyes must be clear, bright, well-defined with correct iris
+
+5. FACIAL FEATURES (PRESERVE ALL):
+   - NOSE: Exact shape and size from reference
+   - MOUTH/LIPS: Shape, fullness, and expression style
+   - CHEEKS: Roundness or slimness as shown
+   - CHIN: Exact shape from reference
+   - EYEBROWS: Shape and thickness from reference
+
+6. UNIQUE CHARACTERISTICS (INCLUDE IF VISIBLE):
+   - Dimples, freckles, birthmarks
+   - Distinctive features that make this child unique
+   - These details make the child recognizable to family
+
+═══════════════════════════════════════════════════════════════════════════════
+TECHNICAL REQUIREMENTS
+═══════════════════════════════════════════════════════════════════════════════
+
 - Pose/Angle: ${poseDesc}
-
-INTEGRATION REQUIREMENTS:
-- Seamlessly blend the child's EXACT likeness into the illustrated style
-- The child should look like they BELONG in this storybook world
-- Preserve background, clothing, body posture, Arabic text, composition
-- Maintain illustrated storybook quality (not photorealistic)
-- The child is an ACTOR in this scene - same person, artistic style
+- Style: Render in ${style.medium} - soft, painterly, illustrated
+- Integration: Seamless blend with ${style.lighting}
+- Preserve: Background, clothing, body posture, Arabic text, composition
+- No photorealistic elements - maintain illustrated storybook quality
 
 ═══════════════════════════════════════════════════════════════════════════════
-✅ FINAL VERIFICATION CHECKLIST (ALL MUST PASS)
+FINAL VERIFICATION CHECKLIST
 ═══════════════════════════════════════════════════════════════════════════════
 
-Before finalizing, verify EACH of these:
+Before finalizing, verify:
+□ Face shape matches reference exactly
+□ Skin tone is IDENTICAL to reference (not lighter, not darker)
+□ Hair COLOR is IDENTICAL to reference (black=black, brown=brown)
+□ Hair STYLE matches reference (length, texture, part)
+□ Eye color matches reference exactly
+□ Facial features (nose, lips, cheeks) match reference
+□ Child is immediately recognizable as the same person from the reference
+□ Parents would say "That's my child!" when they see this illustration
 
-□ FACE SHAPE matches reference exactly (same outline/silhouette)
-□ SKIN TONE is IDENTICAL to reference (not lighter, not darker, same undertone)
-□ HAIR COLOR is IDENTICAL to reference (exact shade - black=black, brown=brown)
-□ HAIR STYLE matches reference (length, texture, parting, thickness)
-□ EYE COLOR matches reference exactly
-□ EYE SHAPE matches reference exactly
-□ EYES are clear, bright, properly formed (NOT spoiled/distorted)
-□ NOSE shape and size matches reference
-□ LIPS shape and fullness matches reference
-□ EYEBROWS shape and thickness matches reference
-□ UNIQUE FEATURES preserved (freckles, dimples, birthmarks if present)
-□ CHILD looks the same AGE as in reference
-□ Child is IMMEDIATELY recognizable as the same person from the reference
-
-═══════════════════════════════════════════════════════════════════════════════
-🎯 THE ULTIMATE TEST
-═══════════════════════════════════════════════════════════════════════════════
-
-When parents see this illustration, they MUST say:
-"That's MY child! That looks EXACTLY like them!"
-
-If there is ANY doubt about the identity, the illustration has FAILED.
-
-OUTPUT: A beautiful storybook illustration where the child looks EXACTLY like
-the reference photo - same skin tone, same hair, same face, same features -
-naturally integrated into the magical scene as the STAR of their own story.`;
+OUTPUT: A beautiful storybook illustration where the child looks EXACTLY like the reference photo - same skin tone, same hair, same features - naturally integrated into the scene.`;
 }
 
 /**
  * Get a simplified prompt for basic face swap (fallback)
- * Still includes critical identity preservation instructions
  */
 export function getBasicFaceSwapContext(pageNumber: number): string {
   const page = getPageConfig(pageNumber);
   if (!page) return "";
 
-  return `Scene: ${page.description}. Child pose: ${page.childPose || "neutral"}. Position: ${page.childPosition || "center"}.
-
-CRITICAL IDENTITY RULES:
-1. Face must match reference EXACTLY - same face shape, same features
-2. Skin tone must be IDENTICAL to reference (no lightening or darkening)
-3. Hair color must match reference EXACTLY (black=black, brown=brown)
-4. Hair style must match reference (length, texture, parting)
-5. Eye color must match reference exactly
-6. Eyes must be clear, bright, not spoiled or distorted
-7. The child IS the star - they must be immediately recognizable`;
+  return `Scene: ${page.description}. Child pose: ${page.childPose || "neutral"}. Position: ${page.childPosition || "center"}.`;
 }

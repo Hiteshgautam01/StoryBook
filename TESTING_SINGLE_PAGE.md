@@ -2,26 +2,13 @@
 
 You can now generate specific pages instead of all 22 pages. This is useful for quickly testing improvements.
 
-## Getting Your Photo URL
-
-After uploading a photo, you'll see the URL in **TWO places**:
-
-### 1. In the Browser Console (F12)
-Look for: `📸 PHOTO URL: https://...`
-
-### 2. Below the uploaded photo
-A text box will appear showing the URL - **click it to select all**, then copy (Ctrl+C / Cmd+C)
-
----
-
 ## Method 1: Browser Console (Easiest)
 
 1. Open your app in the browser: `http://localhost:3000`
-2. Upload a child photo and enter a name
-3. **Copy the photo URL** from below the photo (click the text box)
-4. Open browser Developer Tools (F12)
-5. Go to the Console tab
-6. Paste this code and modify it:
+2. Upload a child photo and enter a name (but don't click "Generate Story" yet)
+3. Open browser Developer Tools (F12)
+4. Go to the Console tab
+5. Paste this code and modify it:
 
 ```javascript
 // Replace these with your actual values

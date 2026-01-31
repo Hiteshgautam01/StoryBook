@@ -21,29 +21,24 @@ import { buildPortraitPrompt, PORTRAIT_NEGATIVE_PROMPT, ALL_POSES } from "@/lib/
  * InstantID API response structure
  */
 interface InstantIDResponse {
-  image: {
+  images: Array<{
     url: string;
     width: number;
     height: number;
     content_type: string;
-    file_name: string;
-    file_size: number;
-  };
-  seed: number;
+  }>;
 }
 
 /**
  * Default InstantID configuration
- * Tuned for MAXIMUM face identity preservation
- *
- * Key insight: Higher identity scales + lower guidance = better face matching
- * The face reference image should dominate, not the text prompt
+ * Tuned for maximum face identity preservation with watercolor style
+ * Updated for better facial feature accuracy and consistency
  */
 const DEFAULT_CONFIG = {
-  ipAdapterScale: 0.95,             // Face identity strength - MAXIMUM for exact face matching
-  identityControlnetScale: 0.99,    // Identity preservation - near maximum for accurate features
-  guidanceScale: 6.0,               // Lower = less prompt influence, more face reference influence
-  numInferenceSteps: 50,            // Higher steps for better quality and face detail
+  ipAdapterScale: 0.85,             // Face identity strength (increased for better face preservation)
+  identityControlnetScale: 0.95,    // Identity preservation (higher = more like original)
+  guidanceScale: 8.0,               // Prompt adherence (higher for better style matching and facial symmetry)
+  numInferenceSteps: 40,            // Quality (higher for better detail, especially important for profile views)
 };
 
 /**
@@ -71,12 +66,12 @@ export async function generatePortrait(
       face_image_url: faceImageUrl,
       prompt,
       negative_prompt: PORTRAIT_NEGATIVE_PROMPT,
-      style: "Watercolor",                     // FIXED: Use 'style' parameter (not 'style_name')
+      style_name: "Watercolor",           // Built-in watercolor style
       ip_adapter_scale: ipAdapterScale,
-      identity_controlnet_conditioning_scale: identityControlnetScale,  // FIXED: Use correct parameter name
+      controlnet_conditioning_scale: identityControlnetScale,
       guidance_scale: guidanceScale,
       num_inference_steps: numInferenceSteps,
-      enhance_face_region: true,               // CRITICAL: Better face detail, especially eyes
+      enhance_face_region: true,          // Better face detail
       num_images: 1,
     },
     logs: true,
@@ -89,25 +84,18 @@ export async function generatePortrait(
 
   const data = result.data as InstantIDResponse;
 
-  // Enhanced debugging for API response
-  console.log(`[InstantID] API Response:`, JSON.stringify(data, null, 2));
-
-  if (!data.image || !data.image.url) {
-    console.error(`[InstantID] Failed response data:`, data);
-    throw new Error(`InstantID returned no image for ${pose}`);
+  if (!data.images || data.images.length === 0) {
+    throw new Error(`InstantID returned no images for ${pose}`);
   }
 
-  const portrait = {
-    pose,
-    imageUrl: data.image.url,
-    width: data.image.width,
-    height: data.image.height,
-  };
-
   console.log(`[InstantID] ${pose} portrait generated successfully`);
-  console.log(`[InstantID] DIMENSION TEST - Portrait: ${portrait.width}x${portrait.height}px (ratio: ${(portrait.width / portrait.height).toFixed(2)}:1)`);
 
-  return portrait;
+  return {
+    pose,
+    imageUrl: data.images[0].url,
+    width: data.images[0].width,
+    height: data.images[0].height,
+  };
 }
 
 /**
@@ -116,27 +104,21 @@ export async function generatePortrait(
  * This is the main entry point for Stage 1 of the hybrid pipeline.
  * Generates one portrait per pose type, which will be reused across
  * multiple pages that share the same pose.
- *
- * @param posesToGenerate Optional array of specific poses to generate. If not provided, generates all poses.
  */
 export async function generateAllPortraits(
   faceImageUrl: string,
-  onPortraitComplete?: (pose: PortraitPose, success: boolean, completedCount: number) => void,
-  posesToGenerate?: PortraitPose[]
+  onPortraitComplete?: (pose: PortraitPose, success: boolean, completedCount: number) => void
 ): Promise<PortraitGenerationResult> {
   const startTime = Date.now();
   const portraits: PortraitCache = new Map();
   const failedPoses: PortraitPose[] = [];
   let completedCount = 0;
 
-  // Use specified poses or default to all poses for backward compatibility
-  const poses = posesToGenerate || ALL_POSES;
-
-  console.log(`[InstantID] Starting portrait generation for ${poses.length} poses: ${poses.join(', ')}`);
+  console.log(`[InstantID] Starting portrait generation for ${ALL_POSES.length} poses...`);
 
   // Generate all portraits in parallel for speed
   const results = await Promise.allSettled(
-    poses.map(async (pose) => {
+    ALL_POSES.map(async (pose) => {
       try {
         const portrait = await generatePortrait({
           faceImageUrl,
@@ -172,7 +154,7 @@ export async function generateAllPortraits(
   const totalTime = Date.now() - startTime;
 
   console.log(`[InstantID] Portrait generation complete in ${totalTime}ms`);
-  console.log(`[InstantID] Success: ${portraits.size}/${poses.length}`);
+  console.log(`[InstantID] Success: ${portraits.size}/${ALL_POSES.length}`);
   if (failedPoses.length > 0) {
     console.log(`[InstantID] Failed poses: ${failedPoses.join(", ")}`);
   }

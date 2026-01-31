@@ -51,63 +51,48 @@ export interface EaselSwapResult {
 export async function easelFaceSwap(
   options: EaselFaceSwapOptions
 ): Promise<EaselSwapResult> {
-  const { baseImageUrl, swapImageUrl, upscale = true, gender = "boy" } = options;
-
-  // Map gender to Easel API format
-  const easelGender = gender === "girl" ? "female" : "male";
+  const { baseImageUrl, swapImageUrl, upscale = true } = options;
 
   console.log(`[Easel] Starting face swap...`);
   console.log(`[Easel] Target (illustration): ${baseImageUrl.substring(0, 50)}...`);
   console.log(`[Easel] Face (portrait): ${swapImageUrl.substring(0, 50)}...`);
   console.log(`[Easel] Upscale: ${upscale}`);
-  console.log(`[Easel] DIMENSION TEST - Will log output dimensions`);
 
-  try {
-    // Use generic model ID to bypass strict typing
-    // The Fal SDK accepts URLs as strings at runtime
-    const result = await fal.subscribe("easel-ai/advanced-face-swap" as const, {
-      input: {
-        face_image_0: swapImageUrl,           // The face to swap from (stylized portrait)
-        target_image: baseImageUrl,            // The target image (illustration)
-        gender_0: easelGender,                 // Gender hint for face detection (dynamic based on child)
-        workflow_type: "target_hair",          // FIXED: Use valid workflow type (target_hair preserves target's hair)
-        upscale,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any,
-      logs: true,
-      onQueueUpdate: (update) => {
-        if (update.status === "IN_PROGRESS") {
-          console.log(`[Easel] Face swap in progress...`);
-        }
-      },
-    });
+  // Use generic model ID to bypass strict typing
+  // The Fal SDK accepts URLs as strings at runtime
+  const result = await fal.subscribe("easel-ai/advanced-face-swap" as const, {
+    input: {
+      face_image_0: swapImageUrl,           // The face to swap from (stylized portrait)
+      target_image: baseImageUrl,            // The target image (illustration)
+      gender_0: "male",                      // Gender hint (API requires this)
+      workflow_type: "illustration_hair",    // Use illustration's hair style for better blending
+      face_restore_strength: 0.75,           // High restoration for better face quality, especially profiles
+      face_detection_threshold: 0.6,         // Moderate threshold for better detection in profile views
+      blend_strength: 0.65,                  // Balanced blending - prevents hair bleeding while maintaining smooth face edges
+      upscale,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any,
+    logs: true,
+    onQueueUpdate: (update) => {
+      if (update.status === "IN_PROGRESS") {
+        console.log(`[Easel] Face swap in progress...`);
+      }
+    },
+  });
 
-    const data = result.data as EaselFaceSwapResponse;
+  const data = result.data as EaselFaceSwapResponse;
 
-    // Enhanced debugging for API response
-    console.log(`[Easel] API Response structure:`, JSON.stringify(data, null, 2));
-
-    if (!data.image) {
-      console.error(`[Easel] Failed response data:`, data);
-      throw new Error("Easel returned no image");
-    }
-
-    console.log(`[Easel] Face swap completed successfully`);
-    console.log(`[Easel] DIMENSION TEST - Output: ${data.image.width}x${data.image.height}px (ratio: ${(data.image.width / data.image.height).toFixed(2)}:1)`);
-
-    return {
-      imageUrl: data.image.url,
-      width: data.image.width,
-      height: data.image.height,
-    };
-  } catch (error) {
-    console.error(`[Easel] Detailed error:`, error);
-    // Check if it's a FAL API error with more details
-    if (error && typeof error === 'object' && 'body' in error) {
-      console.error(`[Easel] Error body:`, JSON.stringify((error as any).body, null, 2));
-    }
-    throw error;
+  if (!data.image) {
+    throw new Error("Easel returned no image");
   }
+
+  console.log(`[Easel] Face swap completed successfully`);
+
+  return {
+    imageUrl: data.image.url,
+    width: data.image.width,
+    height: data.image.height,
+  };
 }
 
 /**

@@ -57,7 +57,7 @@ export function useStoryGeneration(options: UseStoryGenerationOptions = {}) {
   });
 
   const startGeneration = useCallback(
-    async (childName: string, childPhotoUrl: string, gender?: "boy" | "girl" | "neutral", pageNumbers?: number[]) => {
+    async (childName: string, childPhotoUrl: string, gender?: "boy" | "girl" | "neutral") => {
       // Cancel any existing generation
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -78,15 +78,12 @@ export function useStoryGeneration(options: UseStoryGenerationOptions = {}) {
       console.log(`[useStoryGeneration] Starting hybrid pipeline generation`);
       console.log(`[useStoryGeneration] Child name: "${childName}"`);
       console.log(`[useStoryGeneration] Photo URL: ${childPhotoUrl.substring(0, 50)}...`);
-      if (pageNumbers && pageNumbers.length > 0) {
-        console.log(`[useStoryGeneration] Generating specific pages: ${pageNumbers.join(', ')}`);
-      }
 
       try {
         const response = await fetch("/api/generate-story", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ childName, childPhotoUrl, gender, pageNumbers }),
+          body: JSON.stringify({ childName, childPhotoUrl, gender }),
           signal: abortControllerRef.current.signal,
         });
 
@@ -188,13 +185,6 @@ export function useStoryGeneration(options: UseStoryGenerationOptions = {}) {
                     break;
 
                   case "complete":
-                    // Check if this complete event has pages (API route's event)
-                    // Pipeline also sends a complete event without pages - skip that one
-                    if (!data.pages || !Array.isArray(data.pages)) {
-                      console.log(`[useStoryGeneration] Received pipeline complete event (no pages), waiting for API complete...`);
-                      break;
-                    }
-
                     const completedPages: GeneratedPage[] = data.pages.map(
                       (p: { pageNumber: number; imageUrl: string; arabicText: string; success: boolean; method?: FaceSwapMethod }) => ({
                         pageNumber: p.pageNumber,
@@ -204,15 +194,6 @@ export function useStoryGeneration(options: UseStoryGenerationOptions = {}) {
                         method: p.method,
                       })
                     );
-
-                    // Log the personalized text for debugging
-                    console.log(`[useStoryGeneration] Received ${completedPages.length} pages with personalized text`);
-                    if (completedPages.length > 0) {
-                      const samplePage = completedPages.find(p => p.arabicText && p.arabicText.length > 0);
-                      if (samplePage) {
-                        console.log(`[useStoryGeneration] Sample text (page ${samplePage.pageNumber}): "${samplePage.arabicText.substring(0, 60)}..."`);
-                      }
-                    }
 
                     setState((prev) => ({
                       ...prev,
