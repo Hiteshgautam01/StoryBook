@@ -573,6 +573,7 @@ ${gender === "boy" && isFlyingScene
 
 TECHNICAL: Render in ${style.medium} style. Seamless blend with scene lighting.
 Preserve background, body posture, composition. No photorealistic elements.
+TEXT: Ensure any Arabic text is clearly visible and legible in the image.
 
 IMAGE ORIENTATION: LANDSCAPE or SQUARE format only (width >= height).
 Do NOT generate vertical/portrait images - children's storybooks use horizontal page layouts.
