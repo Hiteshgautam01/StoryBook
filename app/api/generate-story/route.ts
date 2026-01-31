@@ -6,6 +6,10 @@ import {
   PageProcessingResult,
 } from "@/lib/hybrid-pipeline";
 
+// Increase timeout for long-running story generation
+// Vercel Pro: max 300s (5 min), Hobby: max 60s
+export const maxDuration = 300;
+
 interface GenerateStoryRequest {
   childName: string;
   childPhotoUrl: string; // Uploaded child's photo for face swap

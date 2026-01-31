@@ -32,8 +32,9 @@ import { ALL_POSES } from "@/lib/prompts/pose-prompts";
 
 /**
  * Send Server-Sent Event to client
+ * Can be async to support operations like storage persistence
  */
-type SSESender = (event: SSEEvent) => void;
+type SSESender = (event: SSEEvent) => void | Promise<void>;
 
 /**
  * Split array into batches
@@ -128,23 +129,36 @@ async function processPage(
   }
 
   // Primary failed, execute fallback chain
-  const fallbackResult = await executeFallbackChain({
-    pageNumber,
-    illustrationUrl,
-    childPhotoUrl: config.childPhotoUrl,
-    portraits,
-    enableNanoBanana: config.enableFallbacks !== false,
-    enableBasicSwap: config.enableFallbacks !== false,
-  });
+  try {
+    const fallbackResult = await executeFallbackChain({
+      pageNumber,
+      illustrationUrl,
+      childPhotoUrl: config.childPhotoUrl,
+      portraits,
+      enableNanoBanana: config.enableFallbacks !== false,
+      enableBasicSwap: config.enableFallbacks !== false,
+    });
 
-  return {
-    pageNumber,
-    success: fallbackResult.success,
-    imageUrl: fallbackResult.imageUrl,
-    arabicText: personalizedText,
-    method: fallbackResult.method,
-    processingTime: Date.now() - startTime,
-  };
+    return {
+      pageNumber,
+      success: fallbackResult.success,
+      imageUrl: fallbackResult.imageUrl,
+      arabicText: personalizedText,
+      method: fallbackResult.method,
+      processingTime: Date.now() - startTime,
+    };
+  } catch (error) {
+    // Ultimate fallback: return original illustration if all methods fail
+    console.error(`[Pipeline] Page ${pageNumber}: Fallback chain failed, using original`, error);
+    return {
+      pageNumber,
+      success: false,
+      imageUrl: illustrationUrl,
+      arabicText: personalizedText,
+      method: "original",
+      processingTime: Date.now() - startTime,
+    };
+  }
 }
 
 /**
@@ -240,8 +254,8 @@ export async function executeHybridPipeline(
       results.push(result);
       methodBreakdown[result.method]++;
 
-      // Send progress event
-      sendSSE?.({
+      // Send progress event - await to ensure async callbacks (like storage persistence) complete
+      await sendSSE?.({
         type: "image",
         pageNumber: result.pageNumber,
         imageUrl: result.imageUrl,
