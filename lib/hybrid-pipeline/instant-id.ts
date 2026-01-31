@@ -34,16 +34,14 @@ interface InstantIDResponse {
 
 /**
  * Default InstantID configuration
- * Tuned for MAXIMUM face identity preservation
- *
- * Key insight: Higher identity scales + lower guidance = better face matching
- * The face reference image should dominate, not the text prompt
+ * Tuned for maximum face identity preservation with watercolor style
+ * Updated for better facial feature accuracy and consistency
  */
 const DEFAULT_CONFIG = {
-  ipAdapterScale: 0.95,             // Face identity strength - MAXIMUM for exact face matching
-  identityControlnetScale: 0.99,    // Identity preservation - near maximum for accurate features
-  guidanceScale: 6.0,               // Lower = less prompt influence, more face reference influence
-  numInferenceSteps: 50,            // Higher steps for better quality and face detail
+  ipAdapterScale: 0.90,             // Face identity strength (very high for exact eye preservation)
+  identityControlnetScale: 0.98,    // Identity preservation (maximum for accurate eyes and features)
+  guidanceScale: 8.5,               // Prompt adherence (higher for better eye quality and style matching)
+  numInferenceSteps: 45,            // Quality (higher for better eye detail in profile views)
 };
 
 /**

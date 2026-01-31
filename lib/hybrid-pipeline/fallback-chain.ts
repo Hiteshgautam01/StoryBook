@@ -51,7 +51,6 @@ export interface FallbackOptions {
   illustrationUrl: string;     // Pre-made illustration
   childPhotoUrl: string;       // Original child photo
   portraits: PortraitCache;    // Stylized portraits from Stage 1
-  gender?: "boy" | "girl";     // Child's gender for outfit selection (default: "boy")
   enableNanoBanana?: boolean;  // Enable Nano Banana fallback (default: true)
   enableBasicSwap?: boolean;   // Enable basic face swap fallback (default: true)
 }
@@ -70,8 +69,7 @@ export interface FallbackResult {
  */
 async function tryEaselWithOriginal(
   illustrationUrl: string,
-  childPhotoUrl: string,
-  gender: "boy" | "girl" = "boy"
+  childPhotoUrl: string
 ): Promise<string | null> {
   console.log("[Fallback] Trying Easel with original photo...");
 
@@ -79,7 +77,6 @@ async function tryEaselWithOriginal(
     baseImageUrl: illustrationUrl,
     swapImageUrl: childPhotoUrl,
     upscale: true,
-    gender,
   });
 
   return result?.imageUrl || null;
@@ -91,20 +88,19 @@ async function tryEaselWithOriginal(
 async function tryNanoBanana(
   illustrationUrl: string,
   childPhotoUrl: string,
-  pageNumber: number,
-  gender: "boy" | "girl" = "boy"
+  pageNumber: number
 ): Promise<string | null> {
-  console.log(`[Fallback] Trying Nano Banana Pro for page ${pageNumber} (gender: ${gender})...`);
+  console.log(`[Fallback] Trying Nano Banana Pro for page ${pageNumber}...`);
 
   try {
-    const prompt = buildPageSpecificPrompt(pageNumber, gender);
+    const prompt = buildPageSpecificPrompt(pageNumber);
 
     const result = await fal.subscribe("fal-ai/nano-banana-pro/edit", {
       input: {
         prompt,
         image_urls: [illustrationUrl, childPhotoUrl],
         num_images: 1,
-        aspect_ratio: "match_input_image",  // FIXED: Preserve original illustration's aspect ratio to avoid stretching
+        aspect_ratio: "auto",
         output_format: "png",
         resolution: "2K",
         guidance_scale: 7.5,           // Increased for better prompt adherence
@@ -184,7 +180,6 @@ export async function executeFallbackChain(
     illustrationUrl,
     childPhotoUrl,
     portraits,
-    gender = "boy",
     enableNanoBanana = true,
     enableBasicSwap = true,
   } = options;
@@ -202,7 +197,6 @@ export async function executeFallbackChain(
         baseImageUrl: illustrationUrl,
         swapImageUrl: portrait.imageUrl,
         upscale: true,
-        gender,
       });
 
       if (result) {
@@ -221,7 +215,7 @@ export async function executeFallbackChain(
 
   // Fallback 1: Easel + Original Photo
   console.log(`[Fallback] Page ${pageNumber}: Trying Easel + original photo...`);
-  const easelOriginalResult = await tryEaselWithOriginal(illustrationUrl, childPhotoUrl, gender);
+  const easelOriginalResult = await tryEaselWithOriginal(illustrationUrl, childPhotoUrl);
   if (easelOriginalResult) {
     return {
       imageUrl: easelOriginalResult,
@@ -232,8 +226,8 @@ export async function executeFallbackChain(
 
   // Fallback 2: Nano Banana Pro
   if (enableNanoBanana) {
-    console.log(`[Fallback] Page ${pageNumber}: Trying Nano Banana Pro (gender: ${gender})...`);
-    const nanoBananaResult = await tryNanoBanana(illustrationUrl, childPhotoUrl, pageNumber, gender);
+    console.log(`[Fallback] Page ${pageNumber}: Trying Nano Banana Pro...`);
+    const nanoBananaResult = await tryNanoBanana(illustrationUrl, childPhotoUrl, pageNumber);
     if (nanoBananaResult) {
       return {
         imageUrl: nanoBananaResult,

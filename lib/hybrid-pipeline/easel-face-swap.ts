@@ -51,10 +51,7 @@ export interface EaselSwapResult {
 export async function easelFaceSwap(
   options: EaselFaceSwapOptions
 ): Promise<EaselSwapResult> {
-  const { baseImageUrl, swapImageUrl, upscale = true, gender = "boy" } = options;
-
-  // Map gender to Easel API format
-  const easelGender = gender === "girl" ? "female" : "male";
+  const { baseImageUrl, swapImageUrl, upscale = true } = options;
 
   console.log(`[Easel] Starting face swap...`);
   console.log(`[Easel] Target (illustration): ${baseImageUrl.substring(0, 50)}...`);
@@ -69,7 +66,7 @@ export async function easelFaceSwap(
       input: {
         face_image_0: swapImageUrl,           // The face to swap from (stylized portrait)
         target_image: baseImageUrl,            // The target image (illustration)
-        gender_0: easelGender,                 // Gender hint for face detection (dynamic based on child)
+        gender_0: "male",                      // Gender hint (API requires this)
         workflow_type: "target_hair",          // FIXED: Use valid workflow type (target_hair preserves target's hair)
         upscale,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

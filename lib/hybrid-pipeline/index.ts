@@ -32,9 +32,8 @@ import { ALL_POSES } from "@/lib/prompts/pose-prompts";
 
 /**
  * Send Server-Sent Event to client
- * Supports async callbacks (e.g., for persisting to storage before returning)
  */
-type SSESender = (event: SSEEvent) => void | Promise<void>;
+type SSESender = (event: SSEEvent) => void;
 
 /**
  * Split array into batches
@@ -75,15 +74,7 @@ async function processPage(
   const illustrationUrl = getPageImageUrl(pageNumber, config.baseUrl);
   const personalizedText = personalizeArabicText(pageConfig.arabicText, config.childName);
 
-  console.log(`[Pipeline] Page ${pageNumber}: Child name = "${config.childName}" (length: ${config.childName?.length || 0})`);
-
-  // Debug: Check if name replacement worked
-  const hadFaisal = pageConfig.arabicText.includes('فيصل');
-  const stillHasFaisal = personalizedText.includes('فيصل');
-  if (hadFaisal) {
-    console.log(`[Pipeline] Page ${pageNumber}: Name replacement - Original had "فيصل": ${hadFaisal}, After personalization: ${stillHasFaisal ? 'STILL HAS IT (BUG!)' : 'Replaced successfully'}`);
-  }
-
+  console.log(`[Pipeline] Page ${pageNumber}: Child name = "${config.childName}"`);
   console.log(`[Pipeline] DIMENSION TEST - Page ${pageNumber} illustration URL: ${illustrationUrl}`);
 
   // If page doesn't have a child, return original
@@ -99,7 +90,7 @@ async function processPage(
   }
 
   // Send page start event
-  await sendSSE?.({
+  sendSSE?.({
     type: "page_start",
     pageNumber,
   });
@@ -119,7 +110,6 @@ async function processPage(
           baseImageUrl: illustrationUrl,
           swapImageUrl: portrait.imageUrl,
           upscale: true,
-          gender: config.gender || "boy",
         });
 
         if (result) {
@@ -144,7 +134,6 @@ async function processPage(
     illustrationUrl,
     childPhotoUrl: config.childPhotoUrl,
     portraits,
-    gender: config.gender || "boy",
     enableNanoBanana: config.enableFallbacks !== false,
     enableBasicSwap: config.enableFallbacks !== false,
   });
@@ -176,7 +165,7 @@ export async function executeHybridPipeline(
   const pagesNeedingSwap = getPagesNeedingFaceSwap().filter(p => pagesToProcess.includes(p));
 
   // Send start event
-  await sendSSE?.({
+  sendSSE?.({
     type: "start",
     totalPages: pagesToProcess.length,
     pagesNeedingSwap: pagesNeedingSwap.length,
@@ -201,7 +190,7 @@ export async function executeHybridPipeline(
   // STAGE 1: Generate stylized portraits
   // ═══════════════════════════════════════════════════════════════════
 
-  await sendSSE?.({
+  sendSSE?.({
     type: "portraits_start",
     totalPoses: posesToGenerate.length,
   });
@@ -222,7 +211,7 @@ export async function executeHybridPipeline(
     posesToGenerate
   );
 
-  await sendSSE?.({
+  sendSSE?.({
     type: "portraits_complete",
     successCount: portraitResult.successCount,
     failedCount: portraitResult.failedPoses.length,
@@ -264,8 +253,8 @@ export async function executeHybridPipeline(
       results.push(result);
       methodBreakdown[result.method]++;
 
-      // Send progress event - await to ensure async callbacks (like storage persistence) complete
-      await sendSSE?.({
+      // Send progress event
+      sendSSE?.({
         type: "image",
         pageNumber: result.pageNumber,
         imageUrl: result.imageUrl,
@@ -289,7 +278,7 @@ export async function executeHybridPipeline(
   const failedCount = results.filter(r => !r.success).length;
 
   // Send completion event
-  await sendSSE?.({
+  sendSSE?.({
     type: "complete",
     totalPages: TOTAL_PAGES,
     successCount,
