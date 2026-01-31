@@ -16,6 +16,7 @@ export const ILLUSTRATION_STYLE_DNA = {
   colorPalette: "rich jewel tones - deep purple, golden amber, turquoise, warm browns",
   mood: "magical, dreamlike, warm and inviting",
   quality: "professional children's book illustration, high detail",
+  aspectRatio: "LANDSCAPE or SQUARE orientation (width >= height). Do NOT create vertical/portrait images.",
 } as const;
 
 /**
@@ -46,23 +47,84 @@ export const CANONICAL_BEDROOM = {
  * Canonical Child Outfits - Gender-specific
  * BEDROOM (pages 1-3, 21): Blue t-shirt (same for both)
  * OUTDOOR/FLYING (pages 4-19): Boy=thobe, Girl=traditional dress
+ *
+ * ⚠️ CRITICAL GENDER RULE - MUST FOLLOW NO MATTER WHAT:
+ * Thobe is a MALE-ONLY garment in Saudi culture.
+ * If the child is a GIRL, she must NEVER wear a thobe.
+ * Girls wear traditional dresses instead.
  */
 export const CANONICAL_OUTFIT = {
   bedroom: {
     garment: "casual blue half-sleeve t-shirt",
-    description: "comfortable blue cotton t-shirt, round neckline, relaxed fit for bedtime",
+    description: "comfortable blue cotton t-shirt with short sleeves reaching mid-upper-arm, " +
+      "round neckline, solid blue color (medium to light blue), relaxed fit for bedtime",
   },
 
+  // THOBE - For outdoor flying adventure scenes - ⚠️ BOYS ONLY
   thobe: {
-    genderRestriction: "BOYS ONLY - Thobe is a MALE garment",
-    garment: "traditional Saudi white thobe (full-length robe)",
-    key: "Single-piece garment wrapping AROUND the body - NOT a cape. Has sleeves, collar, buttons at chest. In flight: ripples gently but stays ON body, never streams behind like cape.",
+    genderRestriction: "⚠️ MANDATORY: BOYS ONLY - Thobe is a MALE garment. Girls do NOT wear thobe under ANY circumstances.",
+    garment: "traditional Saudi white thobe (full-length ankle-length robe) - FOR BOYS ONLY",
+    visualAnalogy: "VISUAL REFERENCE: A thobe looks like a LONG WHITE ANKLE-LENGTH DRESS or a very long button-up shirt. " +
+      "Imagine a priest's cassock or a long nightgown - that's the SHAPE of a thobe. " +
+      "The child's ENTIRE BODY from shoulders to ankles is INSIDE this white fabric tube.",
+    structure: "THOBE ANATOMY (CRITICAL - DRAW EXACTLY THIS): " +
+      "1. COLLAR: Small standing collar OR round neckline at the TOP " +
+      "2. FRONT CLOSURE: Buttons or closures running down the CHEST area " +
+      "3. SLEEVES: Full sleeves attached at shoulders, covering arms to wrists " +
+      "4. BODY: Single piece of white fabric WRAPPING AROUND the entire torso - FRONT, SIDES, and BACK are all covered " +
+      "5. LENGTH: Falls STRAIGHT DOWN from shoulders to ANKLES " +
+      "6. FIT: Loose but structured, hangs vertically along the body's contours",
+    fabric: "White cotton fabric with subtle texture, clean crisp appearance, " +
+      "natural draping weight (not flowy like silk or stiff like cardboard)",
+    inMotion: "⚠️ THOBE PHYSICS WHEN FLYING (VERY IMPORTANT): " +
+      "- The thobe is WORN AROUND the body - the child is INSIDE it like wearing a long dress " +
+      "- In flight: the BOTTOM HEM may flutter and lift slightly (showing ankles) " +
+      "- In flight: sleeves may billow slightly with wind " +
+      "- The thobe KEEPS ITS SHAPE as a garment wrapped around the body " +
+      "- The child's CHEST, STOMACH, and BACK remain INSIDE the white fabric at all times " +
+      "- Wind causes gentle RIPPLING of the fabric, NOT dramatic flying backward",
+    notACape: "⛔ THOBE IS NOT A CAPE - CRITICAL DISTINCTION: " +
+      "A CAPE: attaches ONLY at neck, hangs BEHIND body, shows clothes underneath, flares dramatically when flying " +
+      "A THOBE: wraps AROUND entire body (front+back), IS the main garment, has SLEEVES, child is INSIDE it " +
+      "❌ BANNED: White fabric streaming BEHIND child like Superman's cape " +
+      "❌ BANNED: Child's chest/stomach VISIBLE with white fabric only behind them " +
+      "❌ BANNED: Thobe attached only at shoulders flying backward " +
+      "✅ REQUIRED: White fabric visible on child's FRONT (chest area) " +
+      "✅ REQUIRED: Child's body INSIDE the thobe (wrapped around them) " +
+      "✅ REQUIRED: Thobe looks like a long white dress/robe worn normally",
+    colors: "Pure white or cream white, may have subtle gold embroidery at collar or cuffs",
   },
 
+  // GIRL'S DRESS - For outdoor flying adventure scenes - ⚠️ GIRLS ONLY
   girlDress: {
-    genderRestriction: "GIRLS ONLY - Boys wear thobe instead",
+    genderRestriction: "⚠️ MANDATORY: GIRLS ONLY - This outfit is for female children. Boys wear thobe instead.",
     garment: "traditional colorful flowing dress with long sleeves",
-    key: "Full-length dress, flowing skirt, may have embroidery. In flight: flows gracefully, princess-like appearance. Colors: jewel tones (purple, turquoise, burgundy, emerald) with gold accents.",
+    visualAnalogy: "VISUAL REFERENCE: A beautiful princess-style dress that flows gracefully. " +
+      "Think of an elegant ball gown or fairy-tale princess dress - that's the magical quality we want.",
+    description: "Beautiful traditional-style dress suitable for a young girl: " +
+      "- Full-length reaching to ankles " +
+      "- Long sleeves for modesty, covering arms " +
+      "- Flowing skirt portion that moves gracefully " +
+      "- Fitted or slightly loose bodice at top " +
+      "- May have decorative embroidery, patterns, or embellishments",
+    fit: "Comfortable fit at top, flowing and loose below waist, allows freedom of movement",
+    fabric: "Soft flowing fabric that moves beautifully in the wind, has gentle draping quality",
+    inMotion: "DRESS PHYSICS WHEN FLYING: " +
+      "- The dress flows and ripples GRACEFULLY with the wind " +
+      "- The skirt portion may flutter and billow gently " +
+      "- Sleeves may catch the wind slightly " +
+      "- Creates a MAGICAL, PRINCESS-LIKE appearance while flying " +
+      "- The dress wraps AROUND the body - child is INSIDE the garment " +
+      "- NOT a cape - fabric is on FRONT and BACK of body",
+    colors: "Rich jewel tones - deep purple, turquoise, burgundy, or emerald green. " +
+      "May have gold embroidery or decorative patterns. " +
+      "Colors complement the warm desert and night sky scenes.",
+    notAThobe: "⛔ GIRLS DO NOT WEAR THOBE - EVER: " +
+      "❌ Thobe is a WHITE MALE garment - girls NEVER wear it " +
+      "❌ Do NOT put a girl in a white thobe " +
+      "✅ Girls wear colorful traditional DRESSES " +
+      "✅ Dress should be jewel-toned (purple, turquoise, burgundy, emerald) " +
+      "✅ If child is FEMALE, she MUST be in a dress, NOT a thobe",
   },
 } as const;
 
@@ -77,11 +139,48 @@ export function getOutfitPromptForGender(
     return `OUTFIT: ${CANONICAL_OUTFIT.bedroom.garment}. ${CANONICAL_OUTFIT.bedroom.description}`;
   }
 
+  // Flying/outdoor scenes - gender-specific
   if (gender === "girl") {
-    return `OUTFIT (GIRL): ${CANONICAL_OUTFIT.girlDress.garment}. ${CANONICAL_OUTFIT.girlDress.key} CRITICAL: Girls do NOT wear thobe.`;
+    return `═══════════════════════════════════════════════════════════════════════════════
+OUTFIT: GIRL WEARING TRADITIONAL DRESS (NOT THOBE - THOBE IS MALE-ONLY)
+═══════════════════════════════════════════════════════════════════════════════
+
+⛔ CRITICAL GENDER RULE: This child is a GIRL. Girls wear DRESSES, NOT thobe.
+Thobe is a WHITE MALE garment - DO NOT put this girl in a white thobe.
+
+WHAT SHE WEARS: ${CANONICAL_OUTFIT.girlDress.garment}
+
+${CANONICAL_OUTFIT.girlDress.visualAnalogy}
+
+${CANONICAL_OUTFIT.girlDress.description}
+
+FABRIC: ${CANONICAL_OUTFIT.girlDress.fabric}
+
+COLORS: ${CANONICAL_OUTFIT.girlDress.colors}
+
+${CANONICAL_OUTFIT.girlDress.inMotion}
+
+${CANONICAL_OUTFIT.girlDress.notAThobe}
+═══════════════════════════════════════════════════════════════════════════════`;
   }
 
-  return `OUTFIT (BOY): ${CANONICAL_OUTFIT.thobe.garment}. ${CANONICAL_OUTFIT.thobe.key}`;
+  // Boy - thobe
+  return `═══════════════════════════════════════════════════════════════════════════════
+OUTFIT: BOY WEARING THOBE (THIS IS A ROBE/DRESS - NOT A CAPE!)
+═══════════════════════════════════════════════════════════════════════════════
+
+Child wears ${CANONICAL_OUTFIT.thobe.garment}.
+
+${CANONICAL_OUTFIT.thobe.visualAnalogy}
+
+${CANONICAL_OUTFIT.thobe.structure}
+
+FABRIC: ${CANONICAL_OUTFIT.thobe.fabric}
+
+${CANONICAL_OUTFIT.thobe.inMotion}
+
+${CANONICAL_OUTFIT.thobe.notACape}
+═══════════════════════════════════════════════════════════════════════════════`;
 }
 
 /**
@@ -407,6 +506,17 @@ export function buildPageSpecificPrompt(pageNumber: number, gender: "boy" | "gir
   const isFlyingScene = pageNumber >= 4 && pageNumber <= 19;
   const outfitPrompt = getOutfitPromptForGender(gender, isFlyingScene);
 
+  // Add flying-specific outfit reminder for flying scenes
+  const flyingOutfitReminder = isFlyingScene ? `
+⚠️ FLYING SCENE OUTFIT REMINDER:
+${gender === "boy"
+  ? `The boy wears a WHITE THOBE - a long robe/dress that WRAPS AROUND his body.
+   His chest and stomach are COVERED by white fabric. The thobe is NOT a cape.
+   DO NOT draw white fabric streaming behind him - draw it AROUND him like a dress.`
+  : `The girl wears a COLORFUL DRESS (jewel tones) - NOT a white thobe.
+   The dress flows gracefully but stays AROUND her body, not behind like a cape.`}
+` : '';
+
   return `TASK: Create personalized storybook illustration where child looks EXACTLY like reference photo.
 This is a gift - the child MUST be immediately recognizable to their family.
 
@@ -415,8 +525,10 @@ POSITION: ${page.childPosition || "center"}
 POSE: ${poseDesc}
 
 ${outfitPrompt}
-
+${flyingOutfitReminder}
 ART STYLE: ${style.medium}, ${style.texture}, ${style.lighting}, ${style.colorPalette}
+
+IMAGE FORMAT: ${style.aspectRatio}
 
 ═══════════════════════════════════════════════════════════════════════════════
 IDENTITY PRESERVATION - MANDATORY (COPY EXACTLY FROM REFERENCE PHOTO)
@@ -441,11 +553,31 @@ IDENTITY PRESERVATION - MANDATORY (COPY EXACTLY FROM REFERENCE PHOTO)
 6. UNIQUE MARKS: Include dimples, freckles, birthmarks if visible
 
 ═══════════════════════════════════════════════════════════════════════════════
+OUTFIT VERIFICATION (CHECK BEFORE FINALIZING)
+═══════════════════════════════════════════════════════════════════════════════
+${gender === "boy" && isFlyingScene
+  ? `□ Is the child wearing a WHITE THOBE (long robe)?
+□ Is white fabric visible on the FRONT of the child's body (chest area)?
+□ Is the thobe wrapped AROUND the body (not streaming behind)?
+□ Does it look like a ROBE/DRESS and NOT a cape?
+□ Are there SLEEVES on the arms?`
+  : gender === "girl" && isFlyingScene
+  ? `□ Is the child wearing a COLORFUL DRESS (NOT white thobe)?
+□ Is the dress a jewel tone (purple, turquoise, burgundy, emerald)?
+□ Is the dress wrapped AROUND her body?
+□ Does she look like a princess, NOT a boy in a thobe?`
+  : `□ Is the child wearing a BLUE T-SHIRT?
+□ Is it a casual, comfortable fit for the bedroom scene?`}
+
+═══════════════════════════════════════════════════════════════════════════════
 
 TECHNICAL: Render in ${style.medium} style. Seamless blend with scene lighting.
-Preserve background, clothing, body posture, composition. No photorealistic elements.
+Preserve background, body posture, composition. No photorealistic elements.
 
-OUTPUT: Beautiful storybook illustration where child looks EXACTLY like reference - same skin, hair, features - naturally integrated into scene.`;
+IMAGE ORIENTATION: LANDSCAPE or SQUARE format only (width >= height).
+Do NOT generate vertical/portrait images - children's storybooks use horizontal page layouts.
+
+OUTPUT: Beautiful LANDSCAPE/SQUARE storybook illustration where child looks EXACTLY like reference - same skin, hair, features - correctly dressed in ${gender === "boy" && isFlyingScene ? "WHITE THOBE (robe wrapped around body)" : gender === "girl" && isFlyingScene ? "COLORFUL TRADITIONAL DRESS" : "BLUE T-SHIRT"} - naturally integrated into scene.`;
 }
 
 /**

@@ -1,5 +1,5 @@
 /**
- * Story Page Mapping for Face Swap
+ * Story Page Mapping for Face Swap (CONDENSED VERSION)
  *
  * Maps existing story illustrations to their metadata.
  * The existing images in /public/pagesimages/ are the base illustrations.
@@ -8,7 +8,6 @@
 
 /**
  * Style DNA - Consistent art style definition for all illustrations
- * This ensures the AI maintains the same aesthetic across all face swaps
  */
 export const ILLUSTRATION_STYLE_DNA = {
   medium: "gouache and watercolor painting",
@@ -17,200 +16,199 @@ export const ILLUSTRATION_STYLE_DNA = {
   colorPalette: "rich jewel tones - deep purple, golden amber, turquoise, warm browns",
   mood: "magical, dreamlike, warm and inviting",
   quality: "professional children's book illustration, high detail",
+  aspectRatio: "LANDSCAPE or SQUARE orientation (width >= height). Do NOT create vertical/portrait images.",
 } as const;
 
 /**
  * Canonical Falcon Design - MUST be consistent across all scenes with the falcon
- * The falcon appears in pages 2-19 and must have CORRECT anatomy
  */
 export const CANONICAL_FALCON = {
-  anatomy: "CRITICAL ANATOMY - REAL FALCON: The falcon MUST have exactly TWO wings (one on each side of its body), like a real bird. Never three wings, never one wing. Two symmetrical wings attached at the shoulders.",
-  appearance: "majestic golden falcon with wings that shimmer like burnished gold, powerful broad wingspan, sleek aerodynamic body",
-  feathers: "golden-bronze feathers with iridescent highlights, each feather detailed and layered naturally",
+  anatomy: "CRITICAL: Real falcon with exactly TWO wings (one on each side), symmetrical, attached at shoulders.",
+  appearance: "majestic golden falcon with wings that shimmer like burnished gold, powerful broad wingspan",
+  feathers: "golden-bronze feathers with iridescent highlights",
   eyes: "piercing intelligent amber-gold eyes, wise and ancient",
-  size: "large majestic falcon, large enough for a child to ride on its back",
-  motion: "wings beat powerfully and gracefully, feathers ripple in the wind, tail feathers fan for steering",
-  glow: "subtle magical golden aura emanates from the falcon, especially from wing tips",
-  personality: "noble, wise, protective guide - the spirit of Saudi heritage",
+  size: "large enough for a child to ride on its back",
+  glow: "subtle magical golden aura, especially from wing tips",
 } as const;
 
 /**
- * Canonical Bedroom Design - MUST be consistent across all bedroom scenes
- * Pages 1, 2, 3, 4, 19, 21 all feature the same bedroom
+ * Canonical Bedroom Design - Pages 1, 2, 3, 4, 19, 21
  */
 export const CANONICAL_BEDROOM = {
-  bed: "wooden bed frame with carved traditional Saudi geometric patterns, plush cream-colored bedding with subtle gold embroidery, multiple soft pillows in cream and deep burgundy",
-  walls: "warm terracotta/sand colored walls with subtle texture, traditional Saudi geometric border pattern near ceiling in gold and deep blue",
-  window: "large arched window with dark wooden frame, traditional mashrabiya-inspired lattice details, deep blue night sky visible through glass",
-  decor: "traditional brass lantern on wooden bedside table, small potted palm plant, woven rug in burgundy and gold tones on wooden floor, framed Arabic calligraphy art on wall",
-  lighting: "warm amber glow from lantern, soft moonlight streaming through window creating gentle shadows",
-  atmosphere: "cozy, warm, magical, traditional Saudi Arabian children's room with blend of heritage and comfort",
-  colors: "warm palette: terracotta walls, cream bedding, burgundy accents, gold details, dark wood furniture, deep blue night sky",
+  bed: "wooden bed with carved Saudi geometric patterns, cream bedding with gold embroidery, burgundy pillows",
+  walls: "warm terracotta walls with geometric border pattern in gold and deep blue",
+  window: "large arched window with mashrabiya-inspired lattice, deep blue night sky visible",
+  decor: "brass lantern, potted palm, burgundy-gold woven rug, Arabic calligraphy art",
+  lighting: "warm amber glow from lantern, soft moonlight through window",
+  colors: "terracotta, cream, burgundy, gold, dark wood, deep blue night sky",
 } as const;
 
 /**
- * Canonical Child Outfits
- * The child wears DIFFERENT outfits depending on location AND GENDER:
- * - BEDROOM (pages 1-3, 21): Blue half-sleeve t-shirt (same for boy/girl)
- * - OUTDOOR/FLYING (pages 4-19):
- *   - BOY: Traditional Saudi white thobe
- *   - GIRL: Traditional colorful dress (NOT thobe - girls do NOT wear thobe)
+ * Canonical Child Outfits - Gender-specific
+ * BEDROOM (pages 1-3, 21): Blue t-shirt (same for both)
+ * OUTDOOR/FLYING (pages 4-19): Boy=thobe, Girl=traditional dress
  *
  * ⚠️ CRITICAL GENDER RULE - MUST FOLLOW NO MATTER WHAT:
  * Thobe is a MALE-ONLY garment in Saudi culture.
  * If the child is a GIRL, she must NEVER wear a thobe.
- * Girls wear traditional dresses or abayas instead.
+ * Girls wear traditional dresses instead.
  */
 export const CANONICAL_OUTFIT = {
-  // BEDROOM OUTFIT - Blue t-shirt for indoor/bedroom scenes (same for boy/girl)
   bedroom: {
     garment: "casual blue half-sleeve t-shirt",
     description: "comfortable blue cotton t-shirt with short sleeves reaching mid-upper-arm, " +
-      "round neckline, solid blue color (medium to light blue), " +
-      "relaxed fit appropriate for bedtime/casual wear",
-    fit: "comfortable relaxed fit, not too tight or loose",
-    colors: "solid blue color (sky blue or medium blue tone)",
+      "round neckline, solid blue color (medium to light blue), relaxed fit for bedtime",
   },
 
   // THOBE - For outdoor flying adventure scenes - ⚠️ BOYS ONLY
   thobe: {
     genderRestriction: "⚠️ MANDATORY: BOYS ONLY - Thobe is a MALE garment. Girls do NOT wear thobe under ANY circumstances.",
     garment: "traditional Saudi white thobe (full-length ankle-length robe) - FOR BOYS ONLY",
-    structure: "CRITICAL: The thobe is a SINGLE-PIECE GARMENT worn like a long shirt/dress - NOT a cape or cloak. It has: " +
-      "straight vertical cut from shoulders to ankles, " +
-      "proper sleeves (not armholes), " +
-      "collar at neckline (small standing collar or round neck), " +
-      "buttons or closures down the front chest area, " +
-      "the garment wraps AROUND the body, not behind like a cape",
-    fit: "loose-fitting but structured garment that maintains its shape, " +
-      "hangs straight down from shoulders, " +
-      "the fabric falls vertically along the body's contours",
-    fabric: "white cotton fabric with subtle texture, " +
-      "clean crisp appearance, " +
-      "fabric has natural draping weight (not flowy like silk or stiff like cardboard)",
-    inMotion: "WHEN FLYING OR IN MOTION: " +
-      "the thobe ripples and flows gently with the wind but KEEPS ITS SHAPE as a garment worn around the body, " +
-      "the bottom hem may flutter and lift slightly revealing ankles, " +
-      "sleeves may billow slightly with wind, " +
-      "NEVER flies straight back like a cape or superhero cloak, " +
-      "NEVER separates from the body like wings or cape, " +
-      "the child is WEARING the thobe (it wraps their body), not having it attached at shoulders only",
-    notACape: "CRITICAL DISTINCTION - A thobe is NOT a cape because: " +
-      "1. Cape attaches only at neck/shoulders and hangs behind the body - thobe wraps AROUND the entire body front and back " +
-      "2. Cape is open at front showing clothes underneath - thobe IS the main garment covering the torso " +
-      "3. Cape flares dramatically when flying - thobe maintains its wrapped-around-body structure " +
-      "4. Cape has no sleeves - thobe has full sleeves " +
-      "5. The child's chest, stomach, and back are INSIDE the thobe, not with thobe behind them",
-    colors: "pure white or cream white, may have subtle gold embroidery at collar or cuffs",
+    visualAnalogy: "VISUAL REFERENCE: A thobe looks like a LONG WHITE ANKLE-LENGTH DRESS or a very long button-up shirt. " +
+      "Imagine a priest's cassock or a long nightgown - that's the SHAPE of a thobe. " +
+      "The child's ENTIRE BODY from shoulders to ankles is INSIDE this white fabric tube.",
+    structure: "THOBE ANATOMY (CRITICAL - DRAW EXACTLY THIS): " +
+      "1. COLLAR: Small standing collar OR round neckline at the TOP " +
+      "2. FRONT CLOSURE: Buttons or closures running down the CHEST area " +
+      "3. SLEEVES: Full sleeves attached at shoulders, covering arms to wrists " +
+      "4. BODY: Single piece of white fabric WRAPPING AROUND the entire torso - FRONT, SIDES, and BACK are all covered " +
+      "5. LENGTH: Falls STRAIGHT DOWN from shoulders to ANKLES " +
+      "6. FIT: Loose but structured, hangs vertically along the body's contours",
+    fabric: "White cotton fabric with subtle texture, clean crisp appearance, " +
+      "natural draping weight (not flowy like silk or stiff like cardboard)",
+    inMotion: "⚠️ THOBE PHYSICS WHEN FLYING (VERY IMPORTANT): " +
+      "- The thobe is WORN AROUND the body - the child is INSIDE it like wearing a long dress " +
+      "- In flight: the BOTTOM HEM may flutter and lift slightly (showing ankles) " +
+      "- In flight: sleeves may billow slightly with wind " +
+      "- The thobe KEEPS ITS SHAPE as a garment wrapped around the body " +
+      "- The child's CHEST, STOMACH, and BACK remain INSIDE the white fabric at all times " +
+      "- Wind causes gentle RIPPLING of the fabric, NOT dramatic flying backward",
+    notACape: "⛔ THOBE IS NOT A CAPE - CRITICAL DISTINCTION: " +
+      "A CAPE: attaches ONLY at neck, hangs BEHIND body, shows clothes underneath, flares dramatically when flying " +
+      "A THOBE: wraps AROUND entire body (front+back), IS the main garment, has SLEEVES, child is INSIDE it " +
+      "❌ BANNED: White fabric streaming BEHIND child like Superman's cape " +
+      "❌ BANNED: Child's chest/stomach VISIBLE with white fabric only behind them " +
+      "❌ BANNED: Thobe attached only at shoulders flying backward " +
+      "✅ REQUIRED: White fabric visible on child's FRONT (chest area) " +
+      "✅ REQUIRED: Child's body INSIDE the thobe (wrapped around them) " +
+      "✅ REQUIRED: Thobe looks like a long white dress/robe worn normally",
+    colors: "Pure white or cream white, may have subtle gold embroidery at collar or cuffs",
   },
 
   // GIRL'S DRESS - For outdoor flying adventure scenes - ⚠️ GIRLS ONLY
   girlDress: {
     genderRestriction: "⚠️ MANDATORY: GIRLS ONLY - This outfit is for female children. Boys wear thobe instead.",
     garment: "traditional colorful flowing dress with long sleeves",
-    description: "beautiful traditional-style dress suitable for a young girl, " +
-      "full-length reaching to ankles, " +
-      "long sleeves for modesty, " +
-      "flowing skirt portion that moves gracefully, " +
-      "fitted or slightly loose bodice, " +
-      "may have decorative embroidery or patterns",
-    fit: "comfortable fit at top, flowing and loose below waist, " +
-      "allows freedom of movement for flying adventure",
-    fabric: "soft flowing fabric that moves beautifully in the wind, " +
-      "has gentle draping quality",
-    inMotion: "WHEN FLYING OR IN MOTION: " +
-      "the dress flows and ripples gracefully with the wind, " +
-      "the skirt may flutter and billow gently, " +
-      "sleeves may catch the wind slightly, " +
-      "creates a magical, princess-like appearance while flying, " +
-      "the dress wraps AROUND the body, not behind like a cape",
-    colors: "rich jewel tones - deep purple, turquoise, burgundy, or emerald green, " +
-      "may have gold embroidery or decorative patterns, " +
-      "colors complement the warm desert and night sky scenes",
-  },
-
-  // Helper text for prompts - gender-conditional outfit instructions
-  flyingOutfitPrompt: {
-    boy: "OUTFIT (BOY - THOBE): Child wears traditional Saudi white thobe. " +
-      "The thobe is a single-piece garment wrapping AROUND the body (not a cape). " +
-      "In flight, it may ripple gently but stays ON the body, never streaming behind like a cape.",
-    girl: "OUTFIT (GIRL - TRADITIONAL DRESS): Child wears a beautiful traditional flowing dress with long sleeves. " +
-      "⚠️ CRITICAL: Girls do NOT wear thobe - thobe is a male-only garment. " +
-      "The dress flows gracefully in the wind, creating a magical princess-like appearance. " +
-      "Rich jewel-tone colors (purple, turquoise, burgundy) with possible gold embroidery.",
-    genderNote: "⚠️ GENDER OUTFIT RULE (MUST FOLLOW): " +
-      "If child is BOY → wears white thobe (traditional male garment). " +
-      "If child is GIRL → wears colorful traditional dress (NOT thobe - thobe is male-only). " +
-      "This is a cultural accuracy requirement that must be followed no matter what.",
+    visualAnalogy: "VISUAL REFERENCE: A beautiful princess-style dress that flows gracefully. " +
+      "Think of an elegant ball gown or fairy-tale princess dress - that's the magical quality we want.",
+    description: "Beautiful traditional-style dress suitable for a young girl: " +
+      "- Full-length reaching to ankles " +
+      "- Long sleeves for modesty, covering arms " +
+      "- Flowing skirt portion that moves gracefully " +
+      "- Fitted or slightly loose bodice at top " +
+      "- May have decorative embroidery, patterns, or embellishments",
+    fit: "Comfortable fit at top, flowing and loose below waist, allows freedom of movement",
+    fabric: "Soft flowing fabric that moves beautifully in the wind, has gentle draping quality",
+    inMotion: "DRESS PHYSICS WHEN FLYING: " +
+      "- The dress flows and ripples GRACEFULLY with the wind " +
+      "- The skirt portion may flutter and billow gently " +
+      "- Sleeves may catch the wind slightly " +
+      "- Creates a MAGICAL, PRINCESS-LIKE appearance while flying " +
+      "- The dress wraps AROUND the body - child is INSIDE the garment " +
+      "- NOT a cape - fabric is on FRONT and BACK of body",
+    colors: "Rich jewel tones - deep purple, turquoise, burgundy, or emerald green. " +
+      "May have gold embroidery or decorative patterns. " +
+      "Colors complement the warm desert and night sky scenes.",
+    notAThobe: "⛔ GIRLS DO NOT WEAR THOBE - EVER: " +
+      "❌ Thobe is a WHITE MALE garment - girls NEVER wear it " +
+      "❌ Do NOT put a girl in a white thobe " +
+      "✅ Girls wear colorful traditional DRESSES " +
+      "✅ Dress should be jewel-toned (purple, turquoise, burgundy, emerald) " +
+      "✅ If child is FEMALE, she MUST be in a dress, NOT a thobe",
   },
 } as const;
 
 /**
- * Get the outfit prompt for a specific gender
- * This is used at runtime to inject the correct outfit instructions
- *
- * @param gender - "boy" or "girl"
- * @param isFlying - whether this is a flying/outdoor scene (pages 4-19)
- * @returns The outfit instruction string for the prompt
+ * Get outfit prompt for a specific gender
  */
 export function getOutfitPromptForGender(
   gender: "boy" | "girl",
   isFlying: boolean = true
 ): string {
   if (!isFlying) {
-    // Bedroom scenes - same outfit for both
     return `OUTFIT: ${CANONICAL_OUTFIT.bedroom.garment}. ${CANONICAL_OUTFIT.bedroom.description}`;
   }
 
   // Flying/outdoor scenes - gender-specific
   if (gender === "girl") {
-    return `OUTFIT (GIRL - TRADITIONAL DRESS):
-Child wears a beautiful traditional flowing dress with long sleeves.
-⚠️ CRITICAL: Girls do NOT wear thobe - thobe is a MALE-ONLY garment.
-${CANONICAL_OUTFIT.girlDress.description}.
-${CANONICAL_OUTFIT.girlDress.inMotion}.
-Colors: ${CANONICAL_OUTFIT.girlDress.colors}.
-The dress flows gracefully in the wind, creating a magical princess-like appearance.`;
+    return `═══════════════════════════════════════════════════════════════════════════════
+OUTFIT: GIRL WEARING TRADITIONAL DRESS (NOT THOBE - THOBE IS MALE-ONLY)
+═══════════════════════════════════════════════════════════════════════════════
+
+⛔ CRITICAL GENDER RULE: This child is a GIRL. Girls wear DRESSES, NOT thobe.
+Thobe is a WHITE MALE garment - DO NOT put this girl in a white thobe.
+
+WHAT SHE WEARS: ${CANONICAL_OUTFIT.girlDress.garment}
+
+${CANONICAL_OUTFIT.girlDress.visualAnalogy}
+
+${CANONICAL_OUTFIT.girlDress.description}
+
+FABRIC: ${CANONICAL_OUTFIT.girlDress.fabric}
+
+COLORS: ${CANONICAL_OUTFIT.girlDress.colors}
+
+${CANONICAL_OUTFIT.girlDress.inMotion}
+
+${CANONICAL_OUTFIT.girlDress.notAThobe}
+═══════════════════════════════════════════════════════════════════════════════`;
   }
 
   // Boy - thobe
-  return `OUTFIT (BOY - THOBE):
+  return `═══════════════════════════════════════════════════════════════════════════════
+OUTFIT: BOY WEARING THOBE (THIS IS A ROBE/DRESS - NOT A CAPE!)
+═══════════════════════════════════════════════════════════════════════════════
+
 Child wears ${CANONICAL_OUTFIT.thobe.garment}.
-${CANONICAL_OUTFIT.thobe.structure}.
-${CANONICAL_OUTFIT.thobe.notACape}.
-${CANONICAL_OUTFIT.thobe.inMotion}.
-Colors: ${CANONICAL_OUTFIT.thobe.colors}.`;
+
+${CANONICAL_OUTFIT.thobe.visualAnalogy}
+
+${CANONICAL_OUTFIT.thobe.structure}
+
+FABRIC: ${CANONICAL_OUTFIT.thobe.fabric}
+
+${CANONICAL_OUTFIT.thobe.inMotion}
+
+${CANONICAL_OUTFIT.thobe.notACape}
+═══════════════════════════════════════════════════════════════════════════════`;
 }
 
 /**
- * Child face position hints for each scene type
+ * Child face position hints
  */
 export type ChildPose =
-  | "profile-left"      // Face turned left
-  | "profile-right"     // Face turned right
-  | "three-quarter"     // Slightly angled
-  | "front-facing"      // Looking at viewer
-  | "looking-up"        // Tilted up (at sky/falcon)
-  | "looking-down"      // Tilted down (at ground)
-  | "back-view"         // Back of head visible
-  | "side-silhouette";  // Side profile silhouette
+  | "profile-left"
+  | "profile-right"
+  | "three-quarter"
+  | "front-facing"
+  | "looking-up"
+  | "looking-down"
+  | "back-view"
+  | "side-silhouette";
 
 export interface StoryPageConfig {
   pageNumber: number;
-  imageFile: string;           // Filename in /public/pagesimages/
-  arabicText: string;          // Arabic text for the page
-  hasChild: boolean;           // Whether the page has a child (needs face swap)
-  description: string;         // Brief description of the scene
-  childPose?: ChildPose;       // Position of child's face in the scene
-  childPosition?: string;      // Where child appears in frame (e.g., "center", "left side")
-  sceneContext?: string;       // Additional scene details for better face integration
+  imageFile: string;
+  arabicText: string;
+  hasChild: boolean;
+  description: string;
+  childPose?: ChildPose;
+  childPosition?: string;
+  sceneContext?: string;
 }
 
 /**
  * All 22 story pages with their configuration
- *
- * Pages with hasChild: true will have face swap applied
- * Pages with hasChild: false will be used as-is
  */
 export const STORY_PAGES: StoryPageConfig[] = [
   {
@@ -221,19 +219,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy at bedroom window looking at stars",
     childPose: "profile-left",
     childPosition: "center-right, standing at window",
-    sceneContext: `CANONICAL BEDROOM SCENE - This establishes the bedroom design used in pages 1-4, 19, 21.
-
-    OUTFIT (BEDROOM): ${CANONICAL_OUTFIT.bedroom.garment}.
-    ${CANONICAL_OUTFIT.bedroom.description}.
-    Child wearing casual blue t-shirt for bedtime.
-
-    BED: ${CANONICAL_BEDROOM.bed}.
-    WALLS: ${CANONICAL_BEDROOM.walls}.
-    WINDOW: ${CANONICAL_BEDROOM.window}.
-    DECOR: ${CANONICAL_BEDROOM.decor}.
-    LIGHTING: ${CANONICAL_BEDROOM.lighting}.
-    COLORS: ${CANONICAL_BEDROOM.colors}.
-    Child stands at window gazing at starry night sky, moonlit atmosphere, magical anticipation.`
+    sceneContext: "BEDROOM SCENE. Blue t-shirt. Child at window gazing at starry night, moonlit atmosphere."
   },
   {
     pageNumber: 2,
@@ -243,19 +229,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy in bedroom seeing golden falcon at window",
     childPose: "three-quarter",
     childPosition: "center, looking toward window",
-    sceneContext: `SAME BEDROOM as page 1 - MUST maintain IDENTICAL design.
-
-    OUTFIT (BEDROOM): ${CANONICAL_OUTFIT.bedroom.garment}.
-    ${CANONICAL_OUTFIT.bedroom.description}.
-    Child wearing casual blue t-shirt for bedtime.
-
-    BED: ${CANONICAL_BEDROOM.bed}.
-    WALLS: ${CANONICAL_BEDROOM.walls}.
-    WINDOW: ${CANONICAL_BEDROOM.window} - golden falcon with glowing wings appears outside.
-    DECOR: ${CANONICAL_BEDROOM.decor}.
-    LIGHTING: ${CANONICAL_BEDROOM.lighting} with added golden glow from falcon.
-    COLORS: ${CANONICAL_BEDROOM.colors}.
-    Child surprised and amazed, turned toward window, wonder on face.`
+    sceneContext: "BEDROOM SCENE. Blue t-shirt. Golden falcon appears at window, child surprised and amazed."
   },
   {
     pageNumber: 3,
@@ -265,19 +239,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy talking to falcon at window",
     childPose: "profile-right",
     childPosition: "left side, facing the falcon",
-    sceneContext: `SAME BEDROOM as pages 1-2 - MUST maintain IDENTICAL design.
-
-    OUTFIT (BEDROOM): ${CANONICAL_OUTFIT.bedroom.garment}.
-    ${CANONICAL_OUTFIT.bedroom.description}.
-    Child wearing casual blue t-shirt for bedtime.
-
-    BED: ${CANONICAL_BEDROOM.bed}.
-    WALLS: ${CANONICAL_BEDROOM.walls}.
-    WINDOW: ${CANONICAL_BEDROOM.window} - majestic falcon perched on windowsill.
-    DECOR: ${CANONICAL_BEDROOM.decor}.
-    LIGHTING: ${CANONICAL_BEDROOM.lighting} with golden aura around falcon.
-    COLORS: ${CANONICAL_BEDROOM.colors}.
-    Intimate conversation scene, child listening intently to falcon's wisdom, sense of magic and destiny.`
+    sceneContext: "BEDROOM SCENE. Blue t-shirt. Intimate conversation, child listening to falcon's wisdom."
   },
   {
     pageNumber: 4,
@@ -287,24 +249,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy holding falcon's wing, taking off into night sky",
     childPose: "looking-up",
     childPosition: "center, ascending into sky",
-    sceneContext: `TAKEOFF SCENE - Child flying out of bedroom with falcon.
-
-    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
-    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
-    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
-
-    THOBE DETAILS (IF BOY): ${CANONICAL_OUTFIT.thobe.structure}.
-    ${CANONICAL_OUTFIT.thobe.notACape}.
-    TAKING FLIGHT: Outfit may flutter at the bottom hem but MUST stay wrapped around the body. The wind lifts the hem slightly but the garment does NOT fly behind like a cape or superhero cloak. The child's body remains INSIDE the outfit.
-
-    BEDROOM BELOW: SAME BEDROOM as pages 1-3 visible below as they take flight.
-    BED: ${CANONICAL_BEDROOM.bed} - visible below getting smaller.
-    WALLS: ${CANONICAL_BEDROOM.walls} - partial view as room recedes.
-    WINDOW: ${CANONICAL_BEDROOM.window} - they're flying out through it.
-    DECOR: ${CANONICAL_BEDROOM.decor} - glimpsed below.
-    LIGHTING: Transition from ${CANONICAL_BEDROOM.lighting} to starry night sky.
-    COLORS: ${CANONICAL_BEDROOM.colors} blending into deep blue night.
-    Magical flight scene, child holding falcon's wing, ascending into starry night, bedroom becoming smaller below.`
+    sceneContext: "TAKEOFF SCENE. Gender-specific outfit. Child flying out of bedroom with falcon into starry night."
   },
   {
     pageNumber: 5,
@@ -314,14 +259,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy riding falcon over Makkah, Kaaba visible below",
     childPose: "looking-down",
     childPosition: "upper portion, riding on falcon",
-    sceneContext: `FLYING SCENE OVER MAKKAH - Child riding falcon.
-
-    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
-    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
-    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
-    IN-FLIGHT: Outfit wraps AROUND the child's body - NOT streaming behind like a cape.
-
-    SCENE: Majestic aerial view of Makkah at night, the Kaaba glowing with divine light below, thousands of worshippers circling, child looking down in spiritual awe from falcon's back.`
+    sceneContext: "FLYING OVER MAKKAH. Gender-specific outfit. Aerial view of Kaaba glowing below, spiritual awe."
   },
   {
     pageNumber: 6,
@@ -331,14 +269,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy on falcon near Kaaba, falcon speaking",
     childPose: "three-quarter",
     childPosition: "center, beside falcon",
-    sceneContext: `HOVERING SCENE NEAR KAABA - Child on falcon.
-
-    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
-    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
-    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
-    WHILE HOVERING: Outfit hangs naturally as they hover in place, gentle wind causes light rippling but garment stays wrapped around body.
-
-    SCENE: Sacred atmosphere near the Kaaba, divine golden light, child listening intently to falcon's wisdom about faith and truth, reverent moment.`
+    sceneContext: "HOVERING NEAR KAABA. Gender-specific outfit. Sacred atmosphere, falcon teaching about faith."
   },
   {
     pageNumber: 7,
@@ -348,14 +279,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy on falcon at Prophet's Mosque in Madinah",
     childPose: "looking-down",
     childPosition: "upper area, flying over mosque",
-    sceneContext: `FLYING SCENE OVER MADINAH - Child riding falcon.
-
-    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
-    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
-    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
-    IN-FLIGHT: Outfit wraps AROUND the child's body - NOT streaming behind like a cape.
-
-    SCENE: Prophet's Mosque with iconic green dome glowing serenely below, peaceful night in Madinah, child gazing down at this holy place with deep reverence.`
+    sceneContext: "FLYING OVER MADINAH. Gender-specific outfit. Prophet's Mosque with green dome below."
   },
   {
     pageNumber: 8,
@@ -365,14 +289,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy watching children learning under palm trees",
     childPose: "looking-down",
     childPosition: "upper portion, observing from above",
-    sceneContext: `FLYING SCENE OVER PALM GROVE - Child riding falcon.
-
-    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
-    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
-    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
-    IN-FLIGHT: Outfit wraps AROUND the child's body - NOT streaming behind like a cape.
-
-    SCENE: Lush palm grove below with traditional learning circles, children studying under trees, warm dappled sunlight, child observing the scene of knowledge-sharing from above.`
+    sceneContext: "FLYING OVER PALM GROVE. Gender-specific outfit. Children studying below, knowledge-sharing scene."
   },
   {
     pageNumber: 9,
@@ -382,14 +299,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy riding falcon over Najd desert canyons",
     childPose: "profile-right",
     childPosition: "center, riding falcon in flight",
-    sceneContext: `FLYING SCENE OVER NAJD DESERT - Child riding falcon.
-
-    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
-    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
-    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
-    IN-FLIGHT: Outfit wraps AROUND the child's body - desert wind causes gentle rippling but garment stays ON the body, NOT streaming behind like a cape.
-
-    SCENE: Vast Najd desert landscape with dramatic canyons and wadis below, golden sand dunes, wind in child's hair, sense of adventure and freedom.`
+    sceneContext: "FLYING OVER NAJD. Gender-specific outfit. Vast desert with canyons and wadis, sense of adventure."
   },
   {
     pageNumber: 10,
@@ -399,14 +309,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy on falcon viewing Riyadh skyline at twilight",
     childPose: "looking-down",
     childPosition: "upper area, overlooking city",
-    sceneContext: `FLYING SCENE OVER RIYADH - Child riding falcon.
-
-    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
-    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
-    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
-    IN-FLIGHT: Outfit wraps AROUND the child's body - NOT streaming behind like a cape.
-
-    SCENE: Modern Riyadh skyline at golden hour/twilight, city lights beginning to glow, Kingdom Tower and other landmarks visible, child amazed at the heart of Arabia.`
+    sceneContext: "FLYING OVER RIYADH. Gender-specific outfit. Modern skyline at golden hour, Kingdom Tower visible."
   },
   {
     pageNumber: 11,
@@ -416,14 +319,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy on falcon between old Masmak and modern Kingdom Tower",
     childPose: "three-quarter",
     childPosition: "center, floating between old and new",
-    sceneContext: `HOVERING SCENE - RIYADH OLD AND NEW - Child on falcon.
-
-    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
-    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
-    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
-    WHILE HOVERING: Outfit hangs naturally, gentle wind causes light rippling but garment stays wrapped around body - NOT like a cape.
-
-    SCENE: Split scene showing contrast of historical Masmak Fort (mud-brick, traditional) on one side and modern Kingdom Tower on the other, child floating between past and future of Riyadh.`
+    sceneContext: "RIYADH OLD & NEW. Gender-specific outfit. Masmak Fort on one side, Kingdom Tower on other."
   },
   {
     pageNumber: 12,
@@ -433,14 +329,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy with falcon at AlUla ancient tombs",
     childPose: "looking-up",
     childPosition: "lower portion, among rock formations",
-    sceneContext: `LANDING/GROUND SCENE AT ALULA - Child with falcon.
-
-    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
-    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
-    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
-    ON GROUND: Outfit hangs naturally straight down, proper garment draping.
-
-    SCENE: Dramatic AlUla rock formations towering above, ancient Nabataean tombs carved into sandstone, mystical golden-hour lighting, child looking up in wonder at the monumental ancient architecture.`
+    sceneContext: "ALULA GROUND SCENE. Gender-specific outfit. Nabataean tombs in sandstone, child looking up in wonder."
   },
   {
     pageNumber: 13,
@@ -450,16 +339,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy riding falcon through Hegra monuments",
     childPose: "profile-left",
     childPosition: "center, flying past carved facades",
-    sceneContext: `FLYING SCENE AT HEGRA - Child riding falcon.
-
-    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
-    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
-    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
-
-    IN-FLIGHT APPEARANCE: Outfit wraps AROUND the child's body (front, sides, back) - the wind may cause gentle rippling but the garment stays ON the body, not streaming behind like a cape.
-    The child is WEARING the outfit, with their body INSIDE it.
-
-    SCENE: Hegra/Madain Saleh carved rock tombs with dramatic Nabataean facades, warm sunset lighting casting long shadows on ancient stonework, child riding falcon past monumental carved entrances, sense of ancient wonder and historical magnificence.`
+    sceneContext: "FLYING AT HEGRA. Gender-specific outfit. Carved rock tombs, sunset lighting, ancient wonder."
   },
   {
     pageNumber: 14,
@@ -469,14 +349,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy sitting with falcon on Asir mountain peak",
     childPose: "profile-right",
     childPosition: "right side, seated on mountain",
-    sceneContext: `RESTING SCENE ON ASIR MOUNTAIN - Child seated with falcon.
-
-    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
-    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
-    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
-    WHILE SEATED: Outfit drapes naturally around seated body, fabric pools slightly around legs, garment wraps the body properly.
-
-    SCENE: Asir mountain peak with colorful traditional Asiri houses visible on slopes, misty green peaks in background, cool mountain air, child resting peacefully with falcon after flight.`
+    sceneContext: "ASIR MOUNTAIN REST. Gender-specific outfit. Colorful Asiri houses on slopes, misty green peaks."
   },
   {
     pageNumber: 15,
@@ -486,14 +359,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy on falcon over Eastern Province oil refineries",
     childPose: "looking-down",
     childPosition: "upper portion, flying over industrial landscape",
-    sceneContext: `FLYING SCENE OVER EASTERN PROVINCE - Child riding falcon.
-
-    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
-    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
-    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
-    IN-FLIGHT: Outfit wraps AROUND the child's body - NOT streaming behind like a cape.
-
-    SCENE: Persian Gulf coastline below, massive oil refineries with glowing lights, modern industry where sea meets desert, child observing Saudi's industrial might from above.`
+    sceneContext: "EASTERN PROVINCE. Gender-specific outfit. Gulf coastline, oil refineries with glowing lights."
   },
   {
     pageNumber: 16,
@@ -503,14 +369,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy with falcon, feathers floating, emotional moment",
     childPose: "front-facing",
     childPosition: "center, emotional close-up",
-    sceneContext: `EMOTIONAL CLOSE-UP SCENE - Child with falcon.
-
-    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
-    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
-    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
-    CLOSE-UP: Upper portion of outfit visible, garment worn correctly around body.
-
-    SCENE: Intimate emotional moment, golden falcon feathers floating magically around, child's face showing deep wonder and connection to homeland, soft golden lighting.`
+    sceneContext: "EMOTIONAL CLOSE-UP. Gender-specific outfit. Golden feathers floating, wonder and connection."
   },
   {
     pageNumber: 17,
@@ -520,14 +379,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy on falcon viewing map of Saudi Arabia from above",
     childPose: "looking-down",
     childPosition: "upper area, above glowing map",
-    sceneContext: `FLYING SCENE OVER MAGICAL MAP - Child riding falcon.
-
-    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
-    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
-    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
-    IN-FLIGHT: Outfit wraps AROUND the child's body - NOT streaming behind like a cape.
-
-    SCENE: Magical glowing map of Saudi Arabia spread below like a treasure map, each region lighting up, child seeing the whole nation unified, profound moment of national pride and belonging.`
+    sceneContext: "MAGICAL MAP. Gender-specific outfit. Glowing map of Saudi Arabia below, national pride moment."
   },
   {
     pageNumber: 18,
@@ -537,14 +389,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy with falcon, golden feathers floating",
     childPose: "three-quarter",
     childPosition: "center, surrounded by feathers",
-    sceneContext: `MAGICAL FEATHER SCENE - Child with falcon.
-
-    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
-    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
-    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
-    WHILE FLOATING: Outfit drapes naturally around body, gentle magical wind causes soft rippling but garment stays wrapped around body - NOT like a cape.
-
-    SCENE: Magical moment surrounded by swirling golden falcon feathers, child reaching out to touch them with wonder, soft magical lighting, sense of enchantment and connection.`
+    sceneContext: "MAGICAL FEATHERS. Gender-specific outfit. Swirling golden falcon feathers, enchantment."
   },
   {
     pageNumber: 19,
@@ -554,21 +399,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Falcon returning to boy at bedroom window",
     childPose: "profile-left",
     childPosition: "right side, at window",
-    sceneContext: `RETURN SCENE - Child returning to bedroom at dawn, still wearing adventure outfit.
-
-    ${CANONICAL_OUTFIT.flyingOutfitPrompt.genderNote}
-    FOR BOY: ${CANONICAL_OUTFIT.flyingOutfitPrompt.boy}
-    FOR GIRL: ${CANONICAL_OUTFIT.flyingOutfitPrompt.girl}
-    LANDING/DESCENDING: As child descends to land, outfit may flutter gently but stays wrapped around body - NOT streaming behind like a cape.
-
-    SAME BEDROOM as pages 1-4 - MUST maintain IDENTICAL design, now at dawn.
-    BED: ${CANONICAL_BEDROOM.bed}.
-    WALLS: ${CANONICAL_BEDROOM.walls}.
-    WINDOW: ${CANONICAL_BEDROOM.window} - now with dawn sky colors (soft pink, orange, gold) instead of night blue.
-    DECOR: ${CANONICAL_BEDROOM.decor}.
-    LIGHTING: Dawn light streaming through window, warm pink and gold replacing moonlight, lantern still visible but dimmer.
-    COLORS: ${CANONICAL_BEDROOM.colors} with dawn sky tones (soft pink, peach, golden) visible through window.
-    Child approaching window from outside with falcon, about to land back in familiar bedroom, sense of homecoming.`
+    sceneContext: "RETURN TO BEDROOM. Gender-specific outfit. Dawn sky (pink, orange, gold), homecoming."
   },
   {
     pageNumber: 20,
@@ -585,20 +416,7 @@ export const STORY_PAGES: StoryPageConfig[] = [
     description: "Boy in bedroom holding storybook",
     childPose: "front-facing",
     childPosition: "center, sitting on bed",
-    sceneContext: `MORNING SCENE - Child back in bedroom after adventure.
-
-    OUTFIT (BEDROOM): ${CANONICAL_OUTFIT.bedroom.garment}.
-    ${CANONICAL_OUTFIT.bedroom.description}.
-    Child back in casual blue t-shirt after the magical adventure.
-
-    SAME BEDROOM as pages 1-4, 19 - MUST maintain IDENTICAL design, now in morning light.
-    BED: ${CANONICAL_BEDROOM.bed} - child sitting on bed holding book.
-    WALLS: ${CANONICAL_BEDROOM.walls}.
-    WINDOW: ${CANONICAL_BEDROOM.window} - now with bright morning sky, soft golden sunlight streaming in.
-    DECOR: ${CANONICAL_BEDROOM.decor} - PLUS a single golden falcon feather resting on bedside table as magical memento.
-    LIGHTING: Warm morning sunlight replacing moonlight, room feels bright and hopeful, lantern unlit.
-    COLORS: ${CANONICAL_BEDROOM.colors} with warm morning golden tones, brighter overall atmosphere.
-    Child sits contentedly on bed, holding storybook, peaceful smile, transformed by the magical journey. Golden feather visible as proof of adventure.`
+    sceneContext: "MORNING BEDROOM. Blue t-shirt. Child on bed with book, golden feather as memento, peaceful smile."
   },
   {
     pageNumber: 22,
@@ -618,21 +436,16 @@ export function getPageConfig(pageNumber: number): StoryPageConfig | undefined {
 
 /**
  * Get the image URL for a page
- *
- * Returns Supabase storage URL for use with external APIs (FAL.ai)
- * Falls back to local URL if Supabase is not configured
  */
 export function getPageImageUrl(pageNumber: number, baseUrl: string = ""): string {
   const page = getPageConfig(pageNumber);
   if (!page) return "";
 
-  // Use Supabase storage URL (publicly accessible from FAL API)
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (supabaseUrl) {
     return `${supabaseUrl}/storage/v1/object/public/lubab-images/pagesimages/${page.imageFile}`;
   }
 
-  // Fallback to local URL (won't work with external APIs)
   return `${baseUrl}/pagesimages/${page.imageFile}`;
 }
 
@@ -644,192 +457,134 @@ export function getPagesNeedingFaceSwap(): StoryPageConfig[] {
 }
 
 /**
- * Get all pages (for display)
+ * Get all pages
  */
 export function getAllPages(): StoryPageConfig[] {
   return STORY_PAGES;
 }
 
-/**
- * Total number of pages
- */
 export const TOTAL_PAGES = STORY_PAGES.length;
 
 /**
  * Replace child name placeholder in Arabic text
- * Replaces all occurrences of "فيصل" (Faisal) with the provided child name
  */
 export function personalizeArabicText(arabicText: string, childName: string): string {
-  // Validate inputs
-  if (!arabicText) {
-    console.warn('[personalizeArabicText] Empty arabicText provided');
-    return '';
-  }
-
-  if (!childName || childName.trim() === '') {
-    console.warn('[personalizeArabicText] Empty childName provided, using default');
-    console.warn('[personalizeArabicText] childName value:', JSON.stringify(childName), 'type:', typeof childName);
-    return arabicText; // Return original text if no name provided
-  }
+  if (!arabicText) return '';
+  if (!childName || childName.trim() === '') return arabicText;
 
   const trimmedName = childName.trim();
-  const originalText = arabicText;
-  const hasFaisal = arabicText.includes('فيصل');
-  const personalizedText = arabicText.replace(/فيصل/g, trimmedName);
-
-  // Always log personalization attempt
-  console.log(`[personalizeArabicText] Input name: "${trimmedName}" (${trimmedName.length} chars)`);
-  console.log(`[personalizeArabicText] Has "فيصل": ${hasFaisal}`);
-  console.log(`[personalizeArabicText] Result: "${personalizedText.substring(0, 80)}..."`);
-
-  return personalizedText;
+  return arabicText.replace(/فيصل/g, trimmedName);
 }
 
 /**
- * Convert pose type to natural language description
+ * Convert pose to description
  */
 function getPoseDescription(pose: ChildPose): string {
   const poseDescriptions: Record<ChildPose, string> = {
-    "profile-left": "face turned to the left showing left profile, one visible eye must be perfectly clear and accurately shaped",
-    "profile-right": "face turned to the right showing right profile, one visible eye must be perfectly clear and accurately shaped",
-    "three-quarter": "face at three-quarter angle, slightly turned",
-    "front-facing": "face looking directly forward at the viewer",
-    "looking-up": "face tilted upward, looking at the sky",
-    "looking-down": "face tilted downward, looking below",
-    "back-view": "back of head visible, facing away",
-    "side-silhouette": "side silhouette profile",
+    "profile-left": "face turned left, left profile visible",
+    "profile-right": "face turned right, right profile visible",
+    "three-quarter": "face at three-quarter angle",
+    "front-facing": "face looking directly at viewer",
+    "looking-up": "face tilted upward",
+    "looking-down": "face tilted downward",
+    "back-view": "back of head visible",
+    "side-silhouette": "side silhouette",
   };
   return poseDescriptions[pose] || "neutral position";
 }
 
 /**
- * Build a page-specific face swap prompt with scene context
- * Enhanced for maximum identity preservation - the child MUST look exactly like their photo
- *
- * @param pageNumber - The page number to build prompt for
- * @param gender - Optional gender for outfit selection (defaults to "boy")
+ * Build page-specific face swap prompt (CONDENSED VERSION)
+ * ~50% shorter than original while keeping core identity preservation
  */
 export function buildPageSpecificPrompt(pageNumber: number, gender: "boy" | "girl" = "boy"): string {
   const page = getPageConfig(pageNumber);
-
-  if (!page || !page.hasChild) {
-    return ""; // No prompt needed for pages without children
-  }
+  if (!page || !page.hasChild) return "";
 
   const style = ILLUSTRATION_STYLE_DNA;
   const poseDesc = page.childPose ? getPoseDescription(page.childPose) : "natural position";
-
-  // Determine if this is a flying/outdoor scene (pages 4-19) or bedroom scene
   const isFlyingScene = pageNumber >= 4 && pageNumber <= 19;
   const outfitPrompt = getOutfitPromptForGender(gender, isFlyingScene);
 
-  return `CRITICAL TASK: Create a personalized storybook illustration where the child looks EXACTLY like the reference photo.
-This is a gift for a family - the child MUST be immediately recognizable as THEIR child.
+  // Add flying-specific outfit reminder for flying scenes
+  const flyingOutfitReminder = isFlyingScene ? `
+⚠️ FLYING SCENE OUTFIT REMINDER:
+${gender === "boy"
+  ? `The boy wears a WHITE THOBE - a long robe/dress that WRAPS AROUND his body.
+   His chest and stomach are COVERED by white fabric. The thobe is NOT a cape.
+   DO NOT draw white fabric streaming behind him - draw it AROUND him like a dress.`
+  : `The girl wears a COLORFUL DRESS (jewel tones) - NOT a white thobe.
+   The dress flows gracefully but stays AROUND her body, not behind like a cape.`}
+` : '';
 
-SCENE CONTEXT:
-- Scene: ${page.sceneContext || page.description}
-- Child position: ${page.childPosition || "center of frame"}
-- Child's head angle: ${poseDesc}
+  return `TASK: Create personalized storybook illustration where child looks EXACTLY like reference photo.
+This is a gift - the child MUST be immediately recognizable to their family.
 
-OUTFIT REQUIREMENT (GENDER-SPECIFIC - MUST FOLLOW):
+SCENE: ${page.sceneContext || page.description}
+POSITION: ${page.childPosition || "center"}
+POSE: ${poseDesc}
+
 ${outfitPrompt}
+${flyingOutfitReminder}
+ART STYLE: ${style.medium}, ${style.texture}, ${style.lighting}, ${style.colorPalette}
 
-ART STYLE (MUST MATCH):
-- Medium: ${style.medium}
-- Texture: ${style.texture}
-- Lighting: ${style.lighting}
-- Colors: ${style.colorPalette}
-- Quality: ${style.quality}
+IMAGE FORMAT: ${style.aspectRatio}
 
 ═══════════════════════════════════════════════════════════════════════════════
-IDENTITY PRESERVATION - MANDATORY REQUIREMENTS (DO NOT DEVIATE FROM REFERENCE)
+IDENTITY PRESERVATION - MANDATORY (COPY EXACTLY FROM REFERENCE PHOTO)
 ═══════════════════════════════════════════════════════════════════════════════
 
-1. FACE SHAPE (ESSENTIAL FOR RECOGNITION):
-   - Copy the EXACT face shape from the reference photo
-   - Round face must stay round, oval must stay oval, etc.
-   - Preserve cheek fullness, chin shape, jawline exactly as shown
-   - The silhouette of the face must match the reference
+1. FACE SHAPE: Copy exact shape - round/oval/etc, cheek fullness, chin, jawline
 
-2. SKIN TONE (HIGHEST PRIORITY - CORE IDENTITY):
-   - The child's skin color is a fundamental part of their identity
-   - Copy the EXACT skin color, shade, and undertone from reference photo
-   - Fair/light skin → use fair/light skin
-   - Medium/olive skin → use medium/olive skin
-   - Brown/dark skin → use brown/dark skin
-   - NEVER lighten or darken the skin under any circumstances
-   - Skin tone must be consistent across face, neck, ears, and any visible skin
-   - This is NON-NEGOTIABLE - incorrect skin tone makes the child unrecognizable
+2. SKIN TONE (HIGHEST PRIORITY):
+   - Copy EXACT skin color, shade, undertone from reference
+   - NEVER lighten or darken - this makes child unrecognizable
+   - Must be consistent across face, neck, ears
 
-3. HAIR (CRITICAL FOR RECOGNITION - MUST BE IDENTICAL):
-   - HAIR COLOR: Must match reference EXACTLY
-     * Black hair → BLACK (not brown, not gray)
-     * Brown hair → BROWN (the exact shade shown)
-     * Blonde hair → BLONDE (the exact shade shown)
-     * Red hair → RED (if shown in reference)
-   - HAIR STYLE: Copy EXACTLY from reference
-     * Length (short, medium, long)
-     * Texture (straight, wavy, curly, coily)
-     * Part location and direction
-     * Thickness and volume
-   - Hair color must be CONSISTENT across the entire story
-   - Parents will immediately notice if hair color changes
+3. HAIR (CRITICAL):
+   - COLOR: Must match exactly (black=black, brown=brown, blonde=blonde)
+   - STYLE: Same length, texture (straight/wavy/curly), part location
+   - Must be consistent across entire story
 
-4. EYES (ESSENTIAL FOR LIKENESS):
-   - EYE COLOR: Must match reference EXACTLY
-     * Brown eyes → BROWN
-     * Black eyes → BLACK
-     * Blue eyes → BLUE (only if in reference)
-     * Green/hazel → only if in reference
-   - EYE SHAPE: Copy exact shape (round, almond, hooded)
-   - EYE SIZE: Preserve relative size from reference
-   - Eyes must be clear, bright, well-defined with correct iris
+4. EYES: Match exact color (brown/black/blue/green) and shape from reference
 
-5. FACIAL FEATURES (PRESERVE ALL):
-   - NOSE: Exact shape and size from reference
-   - MOUTH/LIPS: Shape, fullness, and expression style
-   - CHEEKS: Roundness or slimness as shown
-   - CHIN: Exact shape from reference
-   - EYEBROWS: Shape and thickness from reference
+5. FEATURES: Preserve nose shape, mouth/lips, cheeks, chin, eyebrows
 
-6. UNIQUE CHARACTERISTICS (INCLUDE IF VISIBLE):
-   - Dimples, freckles, birthmarks
-   - Distinctive features that make this child unique
-   - These details make the child recognizable to family
+6. UNIQUE MARKS: Include dimples, freckles, birthmarks if visible
 
 ═══════════════════════════════════════════════════════════════════════════════
-TECHNICAL REQUIREMENTS
+OUTFIT VERIFICATION (CHECK BEFORE FINALIZING)
+═══════════════════════════════════════════════════════════════════════════════
+${gender === "boy" && isFlyingScene
+  ? `□ Is the child wearing a WHITE THOBE (long robe)?
+□ Is white fabric visible on the FRONT of the child's body (chest area)?
+□ Is the thobe wrapped AROUND the body (not streaming behind)?
+□ Does it look like a ROBE/DRESS and NOT a cape?
+□ Are there SLEEVES on the arms?`
+  : gender === "girl" && isFlyingScene
+  ? `□ Is the child wearing a COLORFUL DRESS (NOT white thobe)?
+□ Is the dress a jewel tone (purple, turquoise, burgundy, emerald)?
+□ Is the dress wrapped AROUND her body?
+□ Does she look like a princess, NOT a boy in a thobe?`
+  : `□ Is the child wearing a BLUE T-SHIRT?
+□ Is it a casual, comfortable fit for the bedroom scene?`}
+
 ═══════════════════════════════════════════════════════════════════════════════
 
-- Pose/Angle: ${poseDesc}
-- Style: Render in ${style.medium} - soft, painterly, illustrated
-- Integration: Seamless blend with ${style.lighting}
-- Preserve: Background, clothing, body posture, Arabic text, composition
-- No photorealistic elements - maintain illustrated storybook quality
+TECHNICAL: Render in ${style.medium} style. Seamless blend with scene lighting.
+Preserve background, body posture, composition. No photorealistic elements.
 
-═══════════════════════════════════════════════════════════════════════════════
-FINAL VERIFICATION CHECKLIST
-═══════════════════════════════════════════════════════════════════════════════
+IMAGE ORIENTATION: LANDSCAPE or SQUARE format only (width >= height).
+Do NOT generate vertical/portrait images - children's storybooks use horizontal page layouts.
 
-Before finalizing, verify:
-□ Face shape matches reference exactly
-□ Skin tone is IDENTICAL to reference (not lighter, not darker)
-□ Hair COLOR is IDENTICAL to reference (black=black, brown=brown)
-□ Hair STYLE matches reference (length, texture, part)
-□ Eye color matches reference exactly
-□ Facial features (nose, lips, cheeks) match reference
-□ Child is immediately recognizable as the same person from the reference
-□ Parents would say "That's my child!" when they see this illustration
-
-OUTPUT: A beautiful storybook illustration where the child looks EXACTLY like the reference photo - same skin tone, same hair, same features - naturally integrated into the scene.`;
+OUTPUT: Beautiful LANDSCAPE/SQUARE storybook illustration where child looks EXACTLY like reference - same skin, hair, features - correctly dressed in ${gender === "boy" && isFlyingScene ? "WHITE THOBE (robe wrapped around body)" : gender === "girl" && isFlyingScene ? "COLORFUL TRADITIONAL DRESS" : "BLUE T-SHIRT"} - naturally integrated into scene.`;
 }
 
 /**
- * Get a simplified prompt for basic face swap (fallback)
+ * Get simplified prompt for basic face swap (fallback)
  */
 export function getBasicFaceSwapContext(pageNumber: number): string {
   const page = getPageConfig(pageNumber);
   if (!page) return "";
-
-  return `Scene: ${page.description}. Child pose: ${page.childPose || "neutral"}. Position: ${page.childPosition || "center"}.`;
+  return `Scene: ${page.description}. Pose: ${page.childPose || "neutral"}. Position: ${page.childPosition || "center"}.`;
 }
