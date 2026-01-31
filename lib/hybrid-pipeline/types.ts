@@ -180,6 +180,7 @@ export interface HybridPipelineConfig {
   baseUrl: string;           // For constructing illustration URLs
   concurrency?: number;      // Pages to process in parallel (default: 3)
   enableFallbacks?: boolean; // Use fallback chain on failures (default: true)
+  pageNumbers?: number[];    // Optional: Only process specific pages (for testing)
 }
 
 /**

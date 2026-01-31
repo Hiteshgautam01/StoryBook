@@ -216,11 +216,14 @@ export async function executeHybridPipeline(
     "original": 0,
   };
 
-  // Process all pages (both with and without children)
-  const allPageNumbers = Array.from({ length: TOTAL_PAGES }, (_, i) => i + 1);
+  // Process pages - either specific pages or all pages
+  const allPageNumbers = config.pageNumbers?.length
+    ? config.pageNumbers.filter(p => p >= 1 && p <= TOTAL_PAGES)
+    : Array.from({ length: TOTAL_PAGES }, (_, i) => i + 1);
   const batches = batchArray(allPageNumbers, concurrency);
+  const totalPagesToProcess = allPageNumbers.length;
 
-  console.log(`[Pipeline] Stage 2: Processing ${TOTAL_PAGES} pages in ${batches.length} batches...`);
+  console.log(`[Pipeline] Stage 2: Processing ${totalPagesToProcess} pages in ${batches.length} batches...`);
 
   for (const batch of batches) {
     const batchResults = await Promise.all(
@@ -242,7 +245,7 @@ export async function executeHybridPipeline(
         success: result.success,
         method: result.method,
         completedCount: results.length,
-        totalPages: TOTAL_PAGES,
+        totalPages: totalPagesToProcess,
       });
     }
   }
@@ -260,14 +263,14 @@ export async function executeHybridPipeline(
   // Send completion event
   sendSSE?.({
     type: "complete",
-    totalPages: TOTAL_PAGES,
+    totalPages: totalPagesToProcess,
     successCount,
     failedCount,
     totalTime,
   });
 
   console.log(`[Pipeline] Complete in ${totalTime}ms`);
-  console.log(`[Pipeline] Success: ${successCount}/${TOTAL_PAGES}`);
+  console.log(`[Pipeline] Success: ${successCount}/${totalPagesToProcess}`);
   console.log(`[Pipeline] Method breakdown:`, methodBreakdown);
 
   return {

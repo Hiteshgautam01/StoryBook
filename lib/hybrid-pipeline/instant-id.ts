@@ -84,6 +84,7 @@ export async function generatePortrait(
   const data = result.data as InstantIDResponse;
 
   if (!data.images || data.images.length === 0) {
+    console.error(`[InstantID] ${pose} response:`, JSON.stringify(result.data, null, 2));
     throw new Error(`InstantID returned no images for ${pose}`);
   }
 

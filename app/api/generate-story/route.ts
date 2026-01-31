@@ -9,6 +9,8 @@ import {
 interface GenerateStoryRequest {
   childName: string;
   childPhotoUrl: string; // Uploaded child's photo for face swap
+  gender?: "boy" | "girl";
+  pageNumbers?: number[]; // Optional: Only process specific pages (for testing)
 }
 
 function createSSEMessage(data: object): string {
@@ -59,7 +61,7 @@ async function persistToStorage(
 export async function POST(request: NextRequest) {
   try {
     const body: GenerateStoryRequest = await request.json();
-    const { childName, childPhotoUrl } = body;
+    const { childName, childPhotoUrl, gender, pageNumbers } = body;
 
     if (!childName || !childPhotoUrl) {
       return new Response(
@@ -74,16 +76,32 @@ export async function POST(request: NextRequest) {
 
     console.log(`[Generate Story] Starting hybrid pipeline for ${childName}`);
     console.log(`[Generate Story] Child photo: ${childPhotoUrl.substring(0, 50)}...`);
+    if (pageNumbers?.length) {
+      console.log(`[Generate Story] Processing specific pages: ${pageNumbers.join(", ")}`);
+    }
 
     // Create SSE stream
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
         const allPages: PageProcessingResult[] = [];
+        let controllerClosed = false;
 
         // SSE sender function for the hybrid pipeline
         const sendSSE = (event: SSEEvent) => {
-          controller.enqueue(encoder.encode(createSSEMessage(event)));
+          if (controllerClosed) return; // Prevent writing after close
+          try {
+            controller.enqueue(encoder.encode(createSSEMessage(event)));
+          } catch {
+            // Controller may have been closed
+          }
+        };
+
+        const closeController = () => {
+          if (!controllerClosed) {
+            controllerClosed = true;
+            controller.close();
+          }
         };
 
         try {
@@ -92,9 +110,11 @@ export async function POST(request: NextRequest) {
             {
               childPhotoUrl,
               childName,
+              gender,
               baseUrl,
               concurrency: 3,
               enableFallbacks: true,
+              pageNumbers,
             },
             async (event: SSEEvent) => {
               // Handle image events specially to persist to Supabase
@@ -161,7 +181,7 @@ export async function POST(request: NextRequest) {
             )
           );
         } finally {
-          controller.close();
+          closeController();
         }
       },
     });
